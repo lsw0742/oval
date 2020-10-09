@@ -157,7 +157,7 @@ public class Guard extends Validator {
    }
 
    private void _validateParameterChecks(final ParameterChecks checks, final Object validatedObject, final Object valueToValidate, final OValContext context,
-      final List<ConstraintViolation> violations) {
+      final List<ConstraintViolation> violations, final String[] profiles) {
       // determine the active exclusions based on the active profiles
       final List<CheckExclusion> activeExclusions = checks.hasExclusions() ? _getActiveExclusions(checks.checkExclusions) : null;
 
@@ -175,7 +175,7 @@ public class Guard extends Validator {
                }
          }
          if (!skip) {
-            checkConstraint(violations, check, validatedObject, valueToValidate, context, null, false);
+            checkConstraint(violations, check, validatedObject, valueToValidate, context, profiles, false);
          }
       }
    }
@@ -1024,7 +1024,7 @@ public class Guard extends Validator {
     * @return null if no violation, otherwise a list
     */
    protected List<ConstraintViolation> validateConstructorParameters(final Object validatedObject, final Constructor<?> constructor,
-      final Object[] argsToValidate) throws ValidationFailedException {
+      final Object[] argsToValidate, final String ...profiles) throws ValidationFailedException {
       // create required objects for this validation cycle
       final List<ConstraintViolation> violations = getCollectionFactory().createList();
       currentViolations.get().add(violations);
@@ -1047,7 +1047,7 @@ public class Guard extends Validator {
                final Object valueToValidate = argsToValidate[i];
                final ConstructorParameterContext context = new ConstructorParameterContext(constructor, i, parameterNames[i]);
 
-               _validateParameterChecks(checks, validatedObject, valueToValidate, context, violations);
+               _validateParameterChecks(checks, validatedObject, valueToValidate, context, violations, profiles);
             }
          }
          return violations.size() == 0 ? null : violations;
@@ -1081,7 +1081,7 @@ public class Guard extends Validator {
    /**
     * Validates the pre conditions for a method call.
     */
-   protected void validateMethodParameters(final Object validatedObject, final Method method, final Object[] args, final List<ConstraintViolation> violations)
+   protected void validateMethodParameters(final Object validatedObject, final Method method, final Object[] args, final List<ConstraintViolation> violations, final String ...profiles)
       throws ValidationFailedException {
       // create a new set for this validation cycle
       currentlyValidatedObjects.get().add(new IdentitySet<>(4));
@@ -1105,7 +1105,7 @@ public class Guard extends Validator {
                   final Object valueToValidate = args[i];
                   final MethodParameterContext context = new MethodParameterContext(method, i, parameterNames[i]);
 
-                  _validateParameterChecks(checks, validatedObject, valueToValidate, context, violations);
+                  _validateParameterChecks(checks, validatedObject, valueToValidate, context, violations, profiles);
                }
             }
          }
