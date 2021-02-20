@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.internal;
 
 import static net.sf.oval.Validator.*;
@@ -16,6 +11,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +23,6 @@ import net.sf.oval.guard.IsGuarded;
 import net.sf.oval.guard.ParameterNameResolver;
 import net.sf.oval.guard.PostCheck;
 import net.sf.oval.guard.PreCheck;
-import net.sf.oval.internal.util.ArrayUtils;
 import net.sf.oval.internal.util.ReflectionUtils;
 
 /**
@@ -127,7 +122,7 @@ public final class ClassChecks {
          final Collection<CheckExclusion> exclusionsColl = (Collection<CheckExclusion>) exclusions;
          checksOfConstructorParameter.checkExclusions.addAll(exclusionsColl);
       } else {
-         ArrayUtils.addAll(checksOfConstructorParameter.checkExclusions, (CheckExclusion[]) exclusions);
+         Collections.addAll(checksOfConstructorParameter.checkExclusions, (CheckExclusion[]) exclusions);
       }
    }
 
@@ -160,16 +155,14 @@ public final class ClassChecks {
    @SuppressWarnings("unchecked")
    private void _addFieldChecks(final Field field, final Object checks) {
       synchronized (checksForFields) {
-         Set<Check> checksOfField = checksForFields.get(field);
-         if (checksOfField == null) {
-            checksOfField = new LinkedHashSet<>(2);
-            checksForFields.put(field, checksOfField);
-            if (ReflectionUtils.isStatic(field)) {
-               constrainedStaticFields.add(field);
+         final Set<Check> checksOfField = checksForFields.computeIfAbsent(field, f -> {
+            if (ReflectionUtils.isStatic(f)) {
+               constrainedStaticFields.add(f);
             } else {
-               constrainedFields.add(field);
+               constrainedFields.add(f);
             }
-         }
+            return new LinkedHashSet<>(2);
+         });
 
          if (checks instanceof Collection) {
             for (final Check check : (Collection<Check>) checks) {
@@ -198,7 +191,7 @@ public final class ClassChecks {
          final Collection<CheckExclusion> exclusionsColl = (Collection<CheckExclusion>) exclusions;
          checksOfMethodParameter.checkExclusions.addAll(exclusionsColl);
       } else {
-         ArrayUtils.addAll(checksOfMethodParameter.checkExclusions, (CheckExclusion[]) exclusions);
+         Collections.addAll(checksOfMethodParameter.checkExclusions, (CheckExclusion[]) exclusions);
       }
    }
 
@@ -234,11 +227,7 @@ public final class ClassChecks {
       }
 
       synchronized (checksForMethodsPostExcecution) {
-         Set<PostCheck> postChecks = checksForMethodsPostExcecution.get(method);
-         if (postChecks == null) {
-            postChecks = new LinkedHashSet<>(2);
-            checksForMethodsPostExcecution.put(method, postChecks);
-         }
+         final Set<PostCheck> postChecks = checksForMethodsPostExcecution.computeIfAbsent(method, m -> new LinkedHashSet<>(2));
 
          if (checks instanceof Collection) {
             for (final PostCheck check : (Collection<PostCheck>) checks) {
@@ -265,11 +254,7 @@ public final class ClassChecks {
       }
 
       synchronized (checksForMethodsPreExecution) {
-         Set<PreCheck> preChecks = checksForMethodsPreExecution.get(method);
-         if (preChecks == null) {
-            preChecks = new LinkedHashSet<>(2);
-            checksForMethodsPreExecution.put(method, preChecks);
-         }
+         final Set<PreCheck> preChecks = checksForMethodsPreExecution.computeIfAbsent(method, m -> new LinkedHashSet<>(2));
 
          if (checks instanceof Collection) {
             for (final PreCheck check : (Collection<PreCheck>) checks) {
@@ -324,11 +309,7 @@ public final class ClassChecks {
             constrainedMethods.remove(method);
          }
 
-         Set<Check> methodChecks = checksForMethodReturnValues.get(method);
-         if (methodChecks == null) {
-            methodChecks = new LinkedHashSet<>(2);
-            checksForMethodReturnValues.put(method, methodChecks);
-         }
+         final Set<Check> methodChecks = checksForMethodReturnValues.computeIfAbsent(method, m -> new LinkedHashSet<>(2));
 
          if (checks instanceof Collection) {
             for (final Check check : (Collection<Check>) checks) {
@@ -356,18 +337,12 @@ public final class ClassChecks {
 
       synchronized (checksForConstructorParameters) {
          // retrieve the currently registered checks for all parameters of the specified constructor
-         Map<Integer, ParameterChecks> checksOfConstructorByParameter = checksForConstructorParameters.get(ctor);
-         if (checksOfConstructorByParameter == null) {
-            checksOfConstructorByParameter = getCollectionFactory().createMap(paramCount);
-            checksForConstructorParameters.put(ctor, checksOfConstructorByParameter);
-         }
+         final Map<Integer, ParameterChecks> checksOfConstructorByParameter = checksForConstructorParameters //
+            .computeIfAbsent(ctor, c -> getCollectionFactory().createMap(paramCount));
 
          // retrieve the checks for the specified parameter
-         ParameterChecks checksOfConstructorParameter = checksOfConstructorByParameter.get(paramIndex);
-         if (checksOfConstructorParameter == null) {
-            checksOfConstructorParameter = new ParameterChecks(ctor, paramIndex, parameterNameResolver.getParameterNames(ctor)[paramIndex]);
-            checksOfConstructorByParameter.put(paramIndex, checksOfConstructorParameter);
-         }
+         final ParameterChecks checksOfConstructorParameter = checksOfConstructorByParameter //
+            .computeIfAbsent(paramIndex, i -> new ParameterChecks(ctor, paramIndex, parameterNameResolver.getParameterNames(ctor)[paramIndex]));
 
          return checksOfConstructorParameter;
       }
@@ -381,18 +356,12 @@ public final class ClassChecks {
 
       synchronized (checksForMethodParameters) {
          // retrieve the currently registered checks for all parameters of the specified method
-         Map<Integer, ParameterChecks> checksOfMethodByParameter = checksForMethodParameters.get(method);
-         if (checksOfMethodByParameter == null) {
-            checksOfMethodByParameter = getCollectionFactory().createMap(paramCount);
-            checksForMethodParameters.put(method, checksOfMethodByParameter);
-         }
+         final Map<Integer, ParameterChecks> checksOfMethodByParameter = checksForMethodParameters //
+            .computeIfAbsent(method, m -> getCollectionFactory().createMap(paramCount));
 
          // retrieve the checks for the specified parameter
-         ParameterChecks checksOfMethodParameter = checksOfMethodByParameter.get(paramIndex);
-         if (checksOfMethodParameter == null) {
-            checksOfMethodParameter = new ParameterChecks(method, paramIndex, parameterNameResolver.getParameterNames(method)[paramIndex]);
-            checksOfMethodByParameter.put(paramIndex, checksOfMethodParameter);
-         }
+         final ParameterChecks checksOfMethodParameter = checksOfMethodByParameter //
+            .computeIfAbsent(paramIndex, i -> new ParameterChecks(method, paramIndex, parameterNameResolver.getParameterNames(method)[paramIndex]));
 
          return checksOfMethodParameter;
       }
@@ -728,7 +697,7 @@ public final class ClassChecks {
             checksOfField.remove(check);
          }
 
-         if (checksOfField.size() == 0) {
+         if (checksOfField.isEmpty()) {
             checksForFields.remove(field);
             constrainedFields.remove(field);
             constrainedStaticFields.remove(field);
@@ -797,7 +766,7 @@ public final class ClassChecks {
             checksforMethod.remove(check);
          }
 
-         if (checksforMethod.size() == 0) {
+         if (checksforMethod.isEmpty()) {
             checksForMethodsPostExcecution.remove(method);
          }
       }
@@ -814,7 +783,7 @@ public final class ClassChecks {
             checksforMethod.remove(check);
          }
 
-         if (checksforMethod.size() == 0) {
+         if (checksforMethod.isEmpty()) {
             checksForMethodsPreExecution.remove(method);
          }
       }
@@ -831,7 +800,7 @@ public final class ClassChecks {
             checksOfMethod.remove(check);
          }
 
-         if (checksOfMethod.size() == 0) {
+         if (checksOfMethod.isEmpty()) {
             checksForMethodReturnValues.remove(method);
             constrainedMethods.remove(method);
             constrainedStaticMethods.remove(method);

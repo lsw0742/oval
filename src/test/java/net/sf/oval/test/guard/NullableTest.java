@@ -1,15 +1,13 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.guard;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
+
+import org.junit.Test;
+
 import net.sf.oval.constraint.exclusion.Nullable;
 import net.sf.oval.exception.ConstraintsViolatedException;
 import net.sf.oval.guard.Guarded;
@@ -18,7 +16,8 @@ import net.sf.oval.guard.Guarded;
  * @author Sebastian Thomschke
  */
 @SuppressWarnings("unused")
-public class NullableTest extends TestCase {
+public class NullableTest {
+
    @Guarded(assertParametersNotNull = true)
    protected static class TestEntity1 {
       protected TestEntity1(final String param1, @Nullable final String param2) {
@@ -50,10 +49,11 @@ public class NullableTest extends TestCase {
       }
    }
 
+   @Test
    public void testNullable1() {
       try {
          new TestEntity1(null, "foo");
-         fail("ConstraintsViolatedException expected");
+         failBecauseExceptionWasNotThrown(ConstraintsViolatedException.class);
       } catch (final ConstraintsViolatedException ex) {
          // nothing
       }
@@ -68,6 +68,7 @@ public class NullableTest extends TestCase {
       t.setParam2(null);
    }
 
+   @Test
    public void testNullable2() {
       new TestEntity2(null, "foo");
       final TestEntity2 t = new TestEntity2("foo", null);

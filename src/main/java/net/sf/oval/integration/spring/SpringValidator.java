@@ -1,13 +1,10 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.integration.spring;
+
+import java.util.ListIterator;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
@@ -57,11 +54,22 @@ public class SpringValidator implements org.springframework.validation.Validator
    public void validate(final Object objectToValidate, final Errors errors) {
       try {
          for (final ConstraintViolation violation : validator.validate(objectToValidate)) {
-            final OValContext ctx = violation.getContext();
             final String errorCode = violation.getErrorCode();
             final String errorMessage = violation.getMessage();
 
-            if (ctx instanceof FieldContext) {
+            final ListIterator<OValContext> listIterator = violation.getContextPath().listIterator(violation.getContextPath().size());
+            OValContext ctx = null;
+            boolean hasFieldContext = false;
+            while (listIterator.hasPrevious()) {
+               ctx = listIterator.previous();
+               if (ctx instanceof FieldContext) {
+                  hasFieldContext = true;
+                  break;
+               }
+            }
+
+            if (hasFieldContext) {
+               @SuppressWarnings("null")
                final String fieldName = ((FieldContext) ctx).getField().getName();
                errors.rejectValue(fieldName, errorCode, errorMessage);
             } else {

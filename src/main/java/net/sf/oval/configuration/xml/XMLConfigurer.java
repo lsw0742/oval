@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.configuration.xml;
 
 import java.io.File;
@@ -183,10 +178,8 @@ public class XMLConfigurer implements Configurer {
                   final List<ConstraintTarget> targets = new ArrayList<>(2);
                   while (reader.hasMoreChildren()) {
                      reader.moveDown();
-                     switch (reader.getNodeName()) {
-                        case "constraintTarget":
-                           targets.add(ConstraintTarget.valueOf(reader.getValue()));
-                           break;
+                     if ("constraintTarget".equals(reader.getNodeName())) {
+                        targets.add(ConstraintTarget.valueOf(reader.getValue()));
                      }
                      reader.moveUp();
                   }
@@ -199,10 +192,8 @@ public class XMLConfigurer implements Configurer {
                   final List<String> profiles = new ArrayList<>(4);
                   while (reader.hasMoreChildren()) {
                      reader.moveDown();
-                     switch (reader.getNodeName()) {
-                        case "string":
-                           profiles.add(reader.getValue());
-                           break;
+                     if ("string".equals(reader.getNodeName())) {
+                        profiles.add(reader.getValue());
                      }
                      reader.moveUp();
                   }
@@ -531,7 +522,7 @@ public class XMLConfigurer implements Configurer {
       try {
          pojoConfigurer = (POJOConfigurer) xStream.fromXML(input);
       } finally {
-         CURRENT_LISTENERS.set(null);
+         CURRENT_LISTENERS.remove();
       }
    }
 
@@ -540,7 +531,7 @@ public class XMLConfigurer implements Configurer {
       try {
          pojoConfigurer = (POJOConfigurer) xStream.fromXML(input);
       } finally {
-         CURRENT_LISTENERS.set(null);
+         CURRENT_LISTENERS.remove();
       }
    }
 
@@ -549,7 +540,7 @@ public class XMLConfigurer implements Configurer {
       try {
          pojoConfigurer = (POJOConfigurer) xStream.fromXML(input);
       } finally {
-         CURRENT_LISTENERS.set(null);
+         CURRENT_LISTENERS.remove();
       }
    }
 
@@ -558,7 +549,7 @@ public class XMLConfigurer implements Configurer {
       try {
          pojoConfigurer = (POJOConfigurer) xStream.fromXML(input);
       } finally {
-         CURRENT_LISTENERS.set(null);
+         CURRENT_LISTENERS.remove();
       }
    }
 

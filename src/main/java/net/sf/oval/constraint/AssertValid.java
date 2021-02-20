@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.constraint;
 
 import java.lang.annotation.Documented;
@@ -71,14 +66,19 @@ public @interface AssertValid {
 
    /**
     * error code passed to the ConstraintViolation object
+    *
+    * @deprecated not used anymore
     */
+   @Deprecated
    String errorCode() default "net.sf.oval.constraint.AssertValid";
 
    /**
     * message to be used for the ContraintsViolatedException
     *
     * @see ConstraintViolation
+    * @deprecated not used anymore
     */
+   @Deprecated
    String message() default "net.sf.oval.constraint.AssertValid.violated";
 
    /**
@@ -88,7 +88,10 @@ public @interface AssertValid {
 
    /**
     * severity passed to the ConstraintViolation object
+    *
+    * @deprecated not used anymore
     */
+   @Deprecated
    int severity() default 0;
 
    /**
@@ -115,5 +118,4 @@ public @interface AssertValid {
     * or the validated bean for object level constraints)
     */
    String when() default "";
-
 }

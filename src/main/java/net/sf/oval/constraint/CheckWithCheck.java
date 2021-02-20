@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.constraint;
 
 import static net.sf.oval.Validator.*;
@@ -15,6 +10,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 
+import net.sf.oval.ValidationCycle;
 import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
 import net.sf.oval.context.OValContext;
@@ -70,12 +66,11 @@ public class CheckWithCheck extends AbstractAnnotationCheck<CheckWith> {
    }
 
    @Override
-   public boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final OValContext context, final Validator validator)
-      throws ReflectionException {
+   public boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final ValidationCycle cycle) throws ReflectionException {
       if (valueToValidate == null && ignoreIfNull)
          return true;
 
-      return simpleCheck.isSatisfied(validatedObject, valueToValidate, context, validator);
+      return simpleCheck.isSatisfied(validatedObject, valueToValidate, cycle.getContext(), cycle.getValidator());
    }
 
    public void setIgnoreIfNull(final boolean ignoreIfNull) {
@@ -84,7 +79,6 @@ public class CheckWithCheck extends AbstractAnnotationCheck<CheckWith> {
    }
 
    /**
-    * @param simpleCheckType the simpleCheckType to set
     * @throws IllegalArgumentException if <code>simpleCheckType == null</code>
     */
    public void setSimpleCheck(final Class<? extends SimpleCheck> simpleCheckType) throws ReflectionException, IllegalArgumentException {
@@ -101,7 +95,6 @@ public class CheckWithCheck extends AbstractAnnotationCheck<CheckWith> {
    }
 
    /**
-    * @param simpleCheck the simpleCheck to set
     * @throws IllegalArgumentException if <code>simpleCheck == null</code>
     */
    public void setSimpleCheck(final SimpleCheck simpleCheck) throws IllegalArgumentException {

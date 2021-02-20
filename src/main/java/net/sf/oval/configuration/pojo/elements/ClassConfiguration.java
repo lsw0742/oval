@@ -1,15 +1,12 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.configuration.pojo.elements;
 
 import java.util.Set;
+
+import net.sf.oval.guard.Guard;
 
 /**
  * @author Sebastian Thomschke
@@ -66,7 +63,7 @@ public class ClassConfiguration extends ConfigurationElement {
 
    /**
     * Specifies if invariants are checked prior and after calls to
-    * non-private methods and constructors.
+    * non-private methods and constructors by {@link Guard}.
     */
    public Boolean checkInvariants;
 
@@ -75,4 +72,14 @@ public class ClassConfiguration extends ConfigurationElement {
     * supporting a documentation function
     */
    public Boolean inspectInterfaces;
+
+   /**
+    * List of interfaces that shall not be inspected.
+    */
+   public Set<Class<?>> excludedInterfaces;
+
+   /**
+    * If specified only these interfaces are inspected otherwise all implemented interfaces.
+    */
+   public Set<Class<?>> includedInterfaces;
 }

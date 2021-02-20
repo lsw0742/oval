@@ -1,17 +1,15 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.validator;
+
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import net.sf.oval.ConstraintViolation;
 import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.IsInvariant;
@@ -24,7 +22,7 @@ import net.sf.oval.guard.SuppressOValWarnings;
 /**
  * @author Sebastian Thomschke
  */
-public class InvariantMethodConstraintsValidationTest extends TestCase {
+public class InvariantMethodConstraintsValidationTest {
    public static class TestEntity {
       public String name;
 
@@ -153,6 +151,7 @@ public class InvariantMethodConstraintsValidationTest extends TestCase {
       }
    }
 
+   @Test
    public void testMethodReturnValueConstraintValidation() {
       final Validator validator = new Validator();
 
@@ -160,13 +159,13 @@ public class InvariantMethodConstraintsValidationTest extends TestCase {
          final TestEntity t = new TestEntity();
 
          List<ConstraintViolation> violations = validator.validate(t);
-         assertTrue(violations.size() == 1);
-         assertTrue(violations.get(0).getMessage().equals("NOT_NULL"));
+         assertThat(violations).hasSize(1);
+         assertThat(violations.get(0).getMessage()).isEqualTo("NOT_NULL");
 
          t.name = "wqerwqer";
          violations = validator.validate(t);
-         assertTrue(violations.size() == 1);
-         assertTrue(violations.get(0).getMessage().equals("LENGTH"));
+         assertThat(violations).hasSize(1);
+         assertThat(violations.get(0).getMessage()).isEqualTo("LENGTH");
       }
    }
 }

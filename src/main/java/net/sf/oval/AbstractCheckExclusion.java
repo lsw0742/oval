@@ -1,19 +1,16 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval;
 
 import static net.sf.oval.Validator.*;
 
+import java.util.List;
 import java.util.Map;
 
 import net.sf.oval.expression.ExpressionLanguage;
+import net.sf.oval.internal.util.StringUtils;
 
 /**
  * Partial implementation of exclusion classes.
@@ -68,12 +65,12 @@ public abstract class AbstractCheckExclusion implements CheckExclusion {
          whenFormula = null;
          whenLang = null;
       } else {
-         this.when = when;
-         final String[] parts = when.split(":", 2);
-         if (parts.length == 0)
+         final List<String> parts = StringUtils.split(when, ':', 2);
+         if (parts.size() < 2)
             throw new IllegalArgumentException("[when] is missing the scripting language declaration");
-         whenLang = parts[0];
-         whenFormula = parts[1];
+         this.when = when;
+         whenLang = parts.get(0);
+         whenFormula = parts.get(1);
       }
    }
 }

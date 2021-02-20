@@ -1,15 +1,13 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.validator;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
+
+import org.junit.Test;
+
 import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.IsInvariant;
 import net.sf.oval.constraint.MaxLength;
@@ -18,7 +16,8 @@ import net.sf.oval.constraint.NotNull;
 /**
  * @author Sebastian Thomschke
  */
-public class ConcurrencyTest extends TestCase {
+public class ConcurrencyTest {
+
    public static final class TestEntity1 {
       @NotNull
       @MaxLength(5)
@@ -57,16 +56,16 @@ public class ConcurrencyTest extends TestCase {
             final TestEntity1 entity = new TestEntity1();
 
             for (int i = 0; i < 100; i++) {
-               assertEquals(1, validator.validate(sharedEntity).size());
+               assertThat(validator.validate(sharedEntity)).hasSize(1);
 
                entity.name = null;
-               assertEquals(1, validator.validate(entity).size());
+               assertThat(validator.validate(entity)).hasSize(1);
 
                entity.name = "1234";
-               assertEquals(0, validator.validate(entity).size());
+               assertThat(validator.validate(entity)).isEmpty();
 
                entity.name = "123456";
-               assertEquals(1, validator.validate(entity).size());
+               assertThat(validator.validate(entity)).hasSize(1);
 
                try {
                   Thread.sleep(5);
@@ -81,6 +80,7 @@ public class ConcurrencyTest extends TestCase {
       }
    }
 
+   @Test
    public void testConcurrency() throws InterruptedException {
       final Validator validator = new Validator();
 
@@ -95,6 +95,6 @@ public class ConcurrencyTest extends TestCase {
       thread2.start();
       thread1.join();
       thread2.join();
-      assertFalse(failed[0]);
+      assertThat(failed[0]).isFalse();
    }
 }

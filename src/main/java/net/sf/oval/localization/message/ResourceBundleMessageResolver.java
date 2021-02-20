@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.localization.message;
 
 import static net.sf.oval.Validator.*;
@@ -31,20 +26,25 @@ import net.sf.oval.internal.util.Assert;
  */
 public class ResourceBundleMessageResolver implements MessageResolver {
 
-   private static class BundlesAndKeys implements Cloneable {
-      private final Map<Locale, Set<ResourceBundle>> bundlesOfLocales = getCollectionFactory().createMap(8);
-      private final Map<ResourceBundle, Set<String>> keysOfBundles = getCollectionFactory().createMap(8);
+   protected static class BundlesAndKeys {
+      private final Map<Locale, Set<ResourceBundle>> bundlesOfLocales;
+      private final Map<ResourceBundle, Set<String>> keysOfBundles;
 
-      @Override
-      public BundlesAndKeys clone() {
-         final BundlesAndKeys clone = new BundlesAndKeys();
-         for (final Entry<Locale, Set<ResourceBundle>> entry : bundlesOfLocales.entrySet()) {
+      public BundlesAndKeys() {
+         bundlesOfLocales = getCollectionFactory().createMap(8);
+         keysOfBundles = getCollectionFactory().createMap(8);
+      }
+
+      public BundlesAndKeys(final BundlesAndKeys copyFrom) {
+         bundlesOfLocales = getCollectionFactory().createMap(copyFrom.bundlesOfLocales.size());
+         for (final Entry<Locale, Set<ResourceBundle>> entry : copyFrom.bundlesOfLocales.entrySet()) {
             final Set<ResourceBundle> keys = getCollectionFactory().createSet();
             keys.addAll(entry.getValue());
-            clone.bundlesOfLocales.put(entry.getKey(), keys);
+            bundlesOfLocales.put(entry.getKey(), keys);
          }
-         clone.keysOfBundles.putAll(keysOfBundles);
-         return clone;
+
+         keysOfBundles = getCollectionFactory().createMap(copyFrom.keysOfBundles.size());
+         keysOfBundles.putAll(copyFrom.keysOfBundles);
       }
    }
 
@@ -93,7 +93,7 @@ public class ResourceBundleMessageResolver implements MessageResolver {
          if (bundlesOfLocale != null && bundlesOfLocale.contains(bundle))
             return false;
 
-         final BundlesAndKeys copy = bundlesAndKeys.clone();
+         final BundlesAndKeys copy = new BundlesAndKeys(bundlesAndKeys);
          bundlesOfLocale = copy.bundlesOfLocales.get(locale);
          if (bundlesOfLocale == null) {
             bundlesOfLocale = getCollectionFactory().createSet();
@@ -134,7 +134,7 @@ public class ResourceBundleMessageResolver implements MessageResolver {
          synchronized (writeLock) {
             bundlesOfLocale = bundlesAndKeys.bundlesOfLocales.get(locale);
             if (bundlesOfLocale == null) {
-               final BundlesAndKeys copy = bundlesAndKeys.clone();
+               final BundlesAndKeys copy = new BundlesAndKeys(bundlesAndKeys);
                bundlesOfLocale = getCollectionFactory().createSet();
                copy.bundlesOfLocales.put(locale, bundlesOfLocale);
 
@@ -183,7 +183,7 @@ public class ResourceBundleMessageResolver implements MessageResolver {
          if (bundlesOfLocale == null || !bundlesOfLocale.contains(bundle))
             return false;
 
-         final BundlesAndKeys copy = bundlesAndKeys.clone();
+         final BundlesAndKeys copy = new BundlesAndKeys(bundlesAndKeys);
          copy.bundlesOfLocales.get(bundleLocale).remove(bundle);
          copy.keysOfBundles.remove(bundle);
 

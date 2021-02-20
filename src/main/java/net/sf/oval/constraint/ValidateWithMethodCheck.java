@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.constraint;
 
 import static net.sf.oval.Validator.*;
@@ -16,9 +11,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import net.sf.oval.ConstraintTarget;
+import net.sf.oval.ValidationCycle;
 import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
-import net.sf.oval.context.OValContext;
 import net.sf.oval.exception.InvalidConfigurationException;
 import net.sf.oval.exception.ReflectionException;
 import net.sf.oval.internal.util.ReflectionUtils;
@@ -69,25 +64,21 @@ public class ValidateWithMethodCheck extends AbstractAnnotationCheck<ValidateWit
       return ignoreIfNull;
    }
 
+   private Method getValidationMethod(final Class<?> clazz) {
+      return ReflectionUtils.getMethodRecursive(clazz, methodName, parameterType);
+   }
+
    @Override
-   public boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final OValContext context, final Validator validator)
-      throws ReflectionException {
+   public boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final ValidationCycle cycle) throws ReflectionException {
       if (valueToValidate == null && ignoreIfNull)
          return true;
 
       final Class<?> clazz = validatedObject.getClass();
-      Method method = validationMethodsByClass.get(clazz);
-      if (method == null) {
-         method = ReflectionUtils.getMethodRecursive(clazz, methodName, parameterType);
-         validationMethodsByClass.put(clazz, method);
-      }
-
+      final Method method = validationMethodsByClass.computeIfAbsent(clazz, this::getValidationMethod);
       if (method == null)
          throw new InvalidConfigurationException("Method " + clazz.getName() + "." + methodName + "(" + parameterType + ") not found. Is [" + parameterType
             + "] the correct value for [@ValidateWithMethod.parameterType]?");
-      // explicit cast to workaround:
-      // "type parameters of <T>T cannot be determined; no unique maximal instance exists for type variable T with upper bounds boolean,java.lang.Object"
-      return (Boolean) ReflectionUtils.invokeMethod(method, validatedObject, valueToValidate);
+      return ReflectionUtils.invokeMethod(method, validatedObject, valueToValidate);
    }
 
    public void setIgnoreIfNull(final boolean ignoreIfNull) {
@@ -97,17 +88,13 @@ public class ValidateWithMethodCheck extends AbstractAnnotationCheck<ValidateWit
 
    public void setMethodName(final String methodName) {
       this.methodName = methodName;
-      synchronized (validationMethodsByClass) {
-         validationMethodsByClass.clear();
-      }
+      validationMethodsByClass.clear();
       requireMessageVariablesRecreation();
    }
 
    public void setParameterType(final Class<?> parameterType) {
       this.parameterType = parameterType;
-      synchronized (validationMethodsByClass) {
-         validationMethodsByClass.clear();
-      }
+      validationMethodsByClass.clear();
       requireMessageVariablesRecreation();
    }
 }

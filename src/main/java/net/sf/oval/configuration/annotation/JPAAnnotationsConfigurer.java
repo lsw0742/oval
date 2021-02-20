@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.configuration.annotation;
 
 import static net.sf.oval.Validator.*;
@@ -137,7 +132,7 @@ public class JPAAnnotationsConfigurer implements Configurer {
             addAssertValidCheckIfRequired(annotation, checks, field);
          }
 
-         if (checks.size() > 0) {
+         if (!checks.isEmpty()) {
             if (config.fieldConfigurations == null) {
                config.fieldConfigurations = cf.createSet(8);
             }
@@ -179,7 +174,7 @@ public class JPAAnnotationsConfigurer implements Configurer {
          }
 
          // check if anything has been configured for this method at all
-         if (checks.size() > 0) {
+         if (!checks.isEmpty()) {
             if (config.methodConfigurations == null) {
                config.methodConfigurations = cf.createSet(2);
             }

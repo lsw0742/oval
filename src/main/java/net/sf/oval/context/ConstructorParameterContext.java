@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.context;
 
 import java.lang.reflect.Constructor;
@@ -36,6 +31,11 @@ public class ConstructorParameterContext extends OValContext {
       return constructor.getConstructor();
    }
 
+   @Override
+   public Class<?> getDeclaringClass() {
+      return constructor.getDeclaringClass();
+   }
+
    public int getParameterIndex() {
       return parameterIndex;
    }
@@ -46,9 +46,14 @@ public class ConstructorParameterContext extends OValContext {
 
    @Override
    public String toString() {
-      return constructor.getDeclaringClass().getName() + "(" + StringUtils.implode(constructor.getParameterTypes(), ",") + ") " + Validator.getMessageResolver()
-         .getMessage("net.sf.oval.context.ConstructorParameterContext.parameter") + " " + parameterIndex + (parameterName == null || parameterName.length() == 0
-            ? ""
-            : " (" + parameterName + ")");
+      return constructor.getDeclaringClass().getName() + "." + toStringUnqualified();
+   }
+
+   @Override
+   public String toStringUnqualified() {
+      return "<init>(" + StringUtils.join(constructor.getParameterTypes(), ',') + ") " //
+         + Validator.getMessageResolver().getMessage("net.sf.oval.context.ConstructorParameterContext.parameter") + " " //
+         + parameterIndex //
+         + (parameterName == null || parameterName.length() == 0 ? "" : " (" + parameterName + ")");
    }
 }

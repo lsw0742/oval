@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.expression;
 
 import java.util.List;
@@ -57,16 +52,13 @@ public class ExpressionLanguageScriptEngineImpl extends AbstractExpressionLangua
       this.engine = engine;
       if (engine instanceof Compilable) {
          compilable = (Compilable) engine;
-         compiledCache = new ObjectCache<String, CompiledScript>() {
-            @Override
-            protected CompiledScript load(final String expression) {
-               try {
-                  return compilable.compile(expression);
-               } catch (final ScriptException ex) {
-                  throw new ExpressionEvaluationException("Parsing " + engine.get(ScriptEngine.NAME) + " expression failed: " + expression, ex);
-               }
+         compiledCache = new ObjectCache<>(expression -> {
+            try {
+               return compilable.compile(expression);
+            } catch (final ScriptException ex) {
+               throw new ExpressionEvaluationException("Parsing " + engine.get(ScriptEngine.NAME) + " expression failed: " + expression, ex);
             }
-         };
+         });
       } else {
          compilable = null;
          compiledCache = null;

@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.internal;
 
 import java.lang.reflect.Field;
@@ -42,48 +37,23 @@ public final class ContextCache {
    }
 
    public static ClassContext getClassContext(final Class<?> clazz) {
-      ClassContext ctx = CLASS_CONTEXTS.get(clazz);
-      if (ctx == null) {
-         ctx = new ClassContext(clazz);
-         CLASS_CONTEXTS.put(clazz, ctx);
-      }
-      return ctx;
+      return CLASS_CONTEXTS.computeIfAbsent(clazz, ClassContext::new);
    }
 
    public static FieldContext getFieldContext(final Field field) {
-      FieldContext ctx = FIELD_CONTEXTS.get(field);
-      if (ctx == null) {
-         ctx = new FieldContext(field);
-         FIELD_CONTEXTS.put(field, ctx);
-      }
-      return ctx;
+      return FIELD_CONTEXTS.computeIfAbsent(field, FieldContext::new);
    }
 
    public static MethodEntryContext getMethodEntryContext(final Method method) {
-      MethodEntryContext ctx = METHOD_ENTRY_CONTEXTS.get(method);
-      if (ctx == null) {
-         ctx = new MethodEntryContext(method);
-         METHOD_ENTRY_CONTEXTS.put(method, ctx);
-      }
-      return ctx;
+      return METHOD_ENTRY_CONTEXTS.computeIfAbsent(method, MethodEntryContext::new);
    }
 
    public static MethodExitContext getMethodExitContext(final Method method) {
-      MethodExitContext ctx = METHOD_EXIT_CONTEXTS.get(method);
-      if (ctx == null) {
-         ctx = new MethodExitContext(method);
-         METHOD_EXIT_CONTEXTS.put(method, ctx);
-      }
-      return ctx;
+      return METHOD_EXIT_CONTEXTS.computeIfAbsent(method, MethodExitContext::new);
    }
 
    public static MethodReturnValueContext getMethodReturnValueContext(final Method method) {
-      MethodReturnValueContext ctx = METHOD_RETURN_VALUE_CONTEXTS.get(method);
-      if (ctx == null) {
-         ctx = new MethodReturnValueContext(method);
-         METHOD_RETURN_VALUE_CONTEXTS.put(method, ctx);
-      }
-      return ctx;
+      return METHOD_RETURN_VALUE_CONTEXTS.computeIfAbsent(method, MethodReturnValueContext::new);
    }
 
    private ContextCache() {

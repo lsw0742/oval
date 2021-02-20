@@ -1,13 +1,10 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.internal.util;
+
+import java.util.Collection;
 
 /**
  * @author Sebastian Thomschke
@@ -21,10 +18,19 @@ public final class Assert {
       return ex;
    }
 
-   public static <T> void argumentNotEmpty(final String name, final String value) throws IllegalArgumentException {
+   public static void argumentNotBlank(final String name, final String value) throws IllegalArgumentException {
       if (value == null)
          throw _adjustStacktrace(new IllegalArgumentException("[" + name + "] must not be null"));
       if (value.length() == 0)
+         throw _adjustStacktrace(new IllegalArgumentException("[" + name + "] must not be empty"));
+      if (StringUtils.isBlank(value))
+         throw _adjustStacktrace(new IllegalArgumentException("[" + name + "] must not be blank"));
+   }
+
+   public static <T> void argumentNotEmpty(final String name, final Collection<T> value) throws IllegalArgumentException {
+      if (value == null)
+         throw _adjustStacktrace(new IllegalArgumentException("[" + name + "] must not be null"));
+      if (value.isEmpty())
          throw _adjustStacktrace(new IllegalArgumentException("[" + name + "] must not be empty"));
    }
 

@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.guard;
 
 import java.lang.reflect.Constructor;
@@ -21,7 +16,7 @@ import net.sf.oval.internal.Log;
 /**
  * This aspect intercepts calls to constructors and methods annotated with @net.sf.oval.annotations.Guarded
  * for automatic runtime validation of constraints defined for constructor/method parameters and method return values.
- * 
+ *
  * @author Sebastian Thomschke
  */
 public abstract aspect GuardAspect extends ApiUsageAuditor {
@@ -42,9 +37,6 @@ public abstract aspect GuardAspect extends ApiUsageAuditor {
         setGuard(guard);
     }
 
-    /**
-     * @return the guard
-     */
     public Guard getGuard() {
         return guard;
     }

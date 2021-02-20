@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.expression;
 
 import java.lang.reflect.AccessibleObject;
@@ -48,7 +43,7 @@ public class ExpressionLanguageOGNLImpl extends AbstractExpressionLanguage {
       @Override
       public Boolean setup(final Map context, final Object target, final Member member, final String propertyName) {
          final AccessibleObject accessible = (AccessibleObject) member;
-         final Boolean oldAccessibleState = accessible.isAccessible();
+         final boolean oldAccessibleState = accessible.isAccessible();
 
          if (!oldAccessibleState) {
             ReflectionUtils.setAccessible(accessible, true);
@@ -57,17 +52,13 @@ public class ExpressionLanguageOGNLImpl extends AbstractExpressionLanguage {
       }
    };
 
-   private final ObjectCache<String, Object> expressionCache = new ObjectCache<String, Object>() {
-
-      @Override
-      protected Object load(final String expression) {
-         try {
-            return Ognl.parseExpression(expression);
-         } catch (final OgnlException ex) {
-            throw new ExpressionEvaluationException("Parsing MVEL expression failed: " + expression, ex);
-         }
+   private final ObjectCache<String, Object> expressionCache = new ObjectCache<>(expression -> {
+      try {
+         return Ognl.parseExpression(expression);
+      } catch (final OgnlException ex) {
+         throw new ExpressionEvaluationException("Parsing MVEL expression failed: " + expression, ex);
       }
-   };
+   });
 
    @Override
    public Object evaluate(final String expression, final Map<String, ?> values) throws ExpressionEvaluationException {

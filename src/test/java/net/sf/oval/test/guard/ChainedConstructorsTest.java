@@ -1,15 +1,15 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.guard;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
+
+import javax.validation.ConstraintViolationException;
+
+import org.junit.Test;
+
 import net.sf.oval.constraint.NotNull;
 import net.sf.oval.guard.Guarded;
 
@@ -17,7 +17,8 @@ import net.sf.oval.guard.Guarded;
  * @author Sebastian Thomschke
  */
 @SuppressWarnings("unused")
-public class ChainedConstructorsTest extends TestCase {
+public class ChainedConstructorsTest {
+
    @Guarded
    public static final class Entity {
       public Entity(@NotNull final Object param) {
@@ -29,11 +30,13 @@ public class ChainedConstructorsTest extends TestCase {
       }
    }
 
+   @Test
    public void testConstructorChaining() {
       try {
          new Entity(null);
-         fail();
+         failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
       } catch (final Exception ex) {
+         ex.printStackTrace();
          // TODO: currently fails with an NPE instead of a ConstraintViolationException https://sourceforge.net/p/oval/bugs/83/
       }
    }

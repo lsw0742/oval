@@ -1,19 +1,16 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.oval.context.OValContext;
 import net.sf.oval.exception.OValException;
+import net.sf.oval.internal.util.CollectionUtils;
 
 /**
  * interface for classes that can check/validate if a constraint is satisfied
@@ -74,9 +71,6 @@ public interface Check extends Serializable {
     */
    String[] getProfiles();
 
-   /**
-    * @return the severity
-    */
    int getSeverity();
 
    /**
@@ -107,13 +101,48 @@ public interface Check extends Serializable {
    String getWhen();
 
    /**
+    * @param validatedObject the object/bean to validate the value against, for static fields or methods this is the class
+    * @param valueToValidate the value to validate, may be null when validating pre conditions for static methods
+    * @return <code>true</code> if this check is active and must be satisfied
     *
+    * @since 3.1.0
+    */
+   default boolean isActive(final Object validatedObject, final Object valueToValidate, final ValidationCycle cycle) {
+      return isActive(validatedObject, valueToValidate, cycle.getValidator());
+   }
+
+   /**
     * @param validatedObject the object/bean to validate the value against, for static fields or methods this is the class
     * @param valueToValidate the value to validate, may be null when validating pre conditions for static methods
     * @param validator the calling validator
     * @return <code>true</code> if this check is active and must be satisfied
+    *
+    * @deprecated use {@link #isActive(Object, Object, ValidationCycle)}
     */
-   boolean isActive(Object validatedObject, Object valueToValidate, Validator validator);
+   @Deprecated
+   default boolean isActive(final Object validatedObject, final Object valueToValidate, final Validator validator) {
+      return isActive(validatedObject, valueToValidate, new ValidationCycle() {
+         @Override
+         public void addConstraintViolation(final ConstraintViolation violation) {
+            throw new UnsupportedOperationException();
+         }
+
+         @Override
+         public List<OValContext> getContextPath() {
+            return null;
+         }
+
+         @Override
+         public Object getRootObject() {
+            return validatedObject;
+         }
+
+         @Override
+         public Validator getValidator() {
+            return validator;
+         }
+      });
+   }
 
    /**
     * This method implements the validation logic
@@ -123,22 +152,51 @@ public interface Check extends Serializable {
     * @param context the validation context (e.g. a field, a constructor parameter or a method parameter)
     * @param validator the calling validator
     * @return true if the value satisfies the checked constraint
+    * @deprecated use {@link #isSatisfied(Object, Object, ValidationCycle)}
     */
-   boolean isSatisfied(Object validatedObject, Object valueToValidate, OValContext context, Validator validator) throws OValException;
+   @Deprecated
+   default boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final OValContext context, final Validator validator)
+      throws OValException {
+      return isSatisfied(validatedObject, valueToValidate, new ValidationCycle() {
+         @Override
+         public void addConstraintViolation(final ConstraintViolation violation) {
+            throw new UnsupportedOperationException();
+         }
+
+         @Override
+         public List<OValContext> getContextPath() {
+            return null;
+         }
+
+         @Override
+         public Object getRootObject() {
+            return validatedObject;
+         }
+
+         @Override
+         public Validator getValidator() {
+            return validator;
+         }
+      });
+   }
 
    /**
-    * @param target the constraint target to set
+    * This method implements the validation logic
+    *
+    * @param validatedObject the object/bean to validate the value against, for static fields or methods this is the class
+    * @param valueToValidate the value to validate, may be null when validating pre conditions for static methods
+    * @return true if the value satisfies the checked constraint
+    *
+    * @since 3.1.0
     */
+   default boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final ValidationCycle cycle) throws OValException {
+      return isSatisfied(validatedObject, valueToValidate, CollectionUtils.getLast(cycle.getContextPath()), cycle.getValidator());
+   }
+
    void setAppliesTo(ConstraintTarget... target);
 
-   /**
-    * @param context the context to set
-    */
    void setContext(OValContext context);
 
-   /**
-    * @param errorCode the error code to set
-    */
    void setErrorCode(String errorCode);
 
    /**
@@ -154,14 +212,8 @@ public interface Check extends Serializable {
     */
    void setMessage(String message);
 
-   /**
-    * @param profiles the profiles to set
-    */
    void setProfiles(String... profiles);
 
-   /**
-    * @param severity the severity to set
-    */
    void setSeverity(int severity);
 
    /**

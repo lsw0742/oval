@@ -1,24 +1,19 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.constraint;
 
 import static net.sf.oval.Validator.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import net.sf.oval.ConstraintTarget;
+import net.sf.oval.ValidationCycle;
 import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
-import net.sf.oval.context.OValContext;
-import net.sf.oval.internal.util.ArrayUtils;
 import net.sf.oval.internal.util.StringUtils;
 
 /**
@@ -42,7 +37,7 @@ public class MemberOfCheck extends AbstractAnnotationCheck<MemberOf> {
    protected Map<String, String> createMessageVariables() {
       final Map<String, String> messageVariables = getCollectionFactory().createMap(2);
       messageVariables.put("ignoreCase", Boolean.toString(ignoreCase));
-      messageVariables.put("members", StringUtils.implode(members, ","));
+      messageVariables.put("members", StringUtils.join(members, ','));
       return messageVariables;
    }
 
@@ -72,7 +67,7 @@ public class MemberOfCheck extends AbstractAnnotationCheck<MemberOf> {
    }
 
    @Override
-   public boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final OValContext context, final Validator validator) {
+   public boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final ValidationCycle cycle) {
       if (valueToValidate == null)
          return true;
 
@@ -96,7 +91,7 @@ public class MemberOfCheck extends AbstractAnnotationCheck<MemberOf> {
 
    public void setMembers(final String... members) {
       this.members = getCollectionFactory().createList();
-      ArrayUtils.addAll(this.members, members);
+      Collections.addAll(this.members, members);
       membersLowerCase = null;
       requireMessageVariablesRecreation();
    }

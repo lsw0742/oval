@@ -1,26 +1,20 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.constraint;
 
 import static net.sf.oval.Validator.*;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import net.sf.oval.ConstraintTarget;
-import net.sf.oval.Validator;
+import net.sf.oval.ValidationCycle;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
-import net.sf.oval.context.OValContext;
-import net.sf.oval.internal.util.ArrayUtils;
 
 /**
  * @author Sebastian Thomschke
@@ -37,17 +31,15 @@ public class MatchPatternCheck extends AbstractAnnotationCheck<MatchPattern> {
 
       setMatchAll(constraintAnnotation.matchAll());
 
-      synchronized (patterns) {
-         patterns.clear();
-         final String[] stringPatterns = constraintAnnotation.pattern();
-         final int[] f = constraintAnnotation.flags();
-         for (int i = 0, l = stringPatterns.length; i < l; i++) {
-            final int flag = f.length > i ? f[i] : 0;
-            final Pattern p = Pattern.compile(stringPatterns[i], flag);
-            patterns.add(p);
-         }
-         requireMessageVariablesRecreation();
+      patterns.clear();
+      final String[] stringPatterns = constraintAnnotation.pattern();
+      final int[] f = constraintAnnotation.flags();
+      for (int i = 0, l = stringPatterns.length; i < l; i++) {
+         final int flag = f.length > i ? f[i] : 0;
+         final Pattern p = Pattern.compile(stringPatterns[i], flag);
+         patterns.add(p);
       }
+      requireMessageVariablesRecreation();
    }
 
    @Override
@@ -63,9 +55,7 @@ public class MatchPatternCheck extends AbstractAnnotationCheck<MatchPattern> {
    }
 
    public Pattern[] getPatterns() {
-      synchronized (patterns) {
-         return patterns.toArray(new Pattern[patterns.size()]);
-      }
+      return patterns.toArray(new Pattern[patterns.size()]);
    }
 
    public boolean isMatchAll() {
@@ -73,7 +63,7 @@ public class MatchPatternCheck extends AbstractAnnotationCheck<MatchPattern> {
    }
 
    @Override
-   public boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final OValContext context, final Validator validator) {
+   public boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final ValidationCycle cycle) {
       if (valueToValidate == null)
          return true;
 
@@ -95,34 +85,26 @@ public class MatchPatternCheck extends AbstractAnnotationCheck<MatchPattern> {
    }
 
    public void setPattern(final Pattern pattern) {
-      synchronized (patterns) {
-         patterns.clear();
-         patterns.add(pattern);
-      }
+      patterns.clear();
+      patterns.add(pattern);
       requireMessageVariablesRecreation();
    }
 
    public void setPattern(final String pattern, final int flags) {
-      synchronized (patterns) {
-         patterns.clear();
-         patterns.add(Pattern.compile(pattern, flags));
-      }
+      patterns.clear();
+      patterns.add(Pattern.compile(pattern, flags));
       requireMessageVariablesRecreation();
    }
 
    public void setPatterns(final Collection<Pattern> patterns) {
-      synchronized (this.patterns) {
-         this.patterns.clear();
-         this.patterns.addAll(patterns);
-      }
+      this.patterns.clear();
+      this.patterns.addAll(patterns);
       requireMessageVariablesRecreation();
    }
 
    public void setPatterns(final Pattern... patterns) {
-      synchronized (this.patterns) {
-         this.patterns.clear();
-         ArrayUtils.addAll(this.patterns, patterns);
-      }
+      this.patterns.clear();
+      Collections.addAll(this.patterns, patterns);
       requireMessageVariablesRecreation();
    }
 }

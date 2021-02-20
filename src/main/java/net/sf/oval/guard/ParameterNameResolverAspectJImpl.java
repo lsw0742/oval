@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.guard;
 
 import java.lang.reflect.AccessibleObject;
@@ -72,10 +67,8 @@ public class ParameterNameResolverAspectJImpl implements ParameterNameResolver {
          try {
             determineParamterNames(constructor.getDeclaringClass());
             parameterNames = parameterNamesCache.get(constructor);
-         } catch (final IllegalArgumentException e) {
-            throw new ReflectionException("Cannot detemine parameter names for constructor " + constructor, e);
-         } catch (final IllegalAccessException e) {
-            throw new ReflectionException("Cannot detemine parameter names for constructor " + constructor, e);
+         } catch (final IllegalArgumentException | IllegalAccessException ex) {
+            throw new ReflectionException("Cannot detemine parameter names for constructor " + constructor, ex);
          }
       }
 
@@ -100,10 +93,8 @@ public class ParameterNameResolverAspectJImpl implements ParameterNameResolver {
          try {
             determineParamterNames(method.getDeclaringClass());
             parameterNames = parameterNamesCache.get(method);
-         } catch (final IllegalArgumentException e) {
-            throw new ReflectionException("Cannot detemine parameter names for method " + method, e);
-         } catch (final IllegalAccessException e) {
-            throw new ReflectionException("Cannot detemine parameter names for method " + method, e);
+         } catch (final IllegalArgumentException | IllegalAccessException ex) {
+            throw new ReflectionException("Cannot detemine parameter names for method " + method, ex);
          }
       }
 

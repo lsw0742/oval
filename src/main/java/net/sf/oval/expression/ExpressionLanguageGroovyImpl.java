@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.expression;
 
 import java.util.Map;
@@ -17,7 +12,7 @@ import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 import net.sf.oval.exception.ExpressionEvaluationException;
 import net.sf.oval.internal.Log;
-import net.sf.oval.internal.util.ThreadLocalObjectCache;
+import net.sf.oval.internal.util.ObjectCache;
 
 /**
  * @author Sebastian Thomschke
@@ -27,12 +22,7 @@ public class ExpressionLanguageGroovyImpl extends AbstractExpressionLanguage {
 
    private static final GroovyShell GROOVY_SHELL = new GroovyShell();
 
-   private final ThreadLocalObjectCache<String, Script> expressionCache = new ThreadLocalObjectCache<String, Script>() {
-      @Override
-      protected Script load(final String expression) {
-         return GROOVY_SHELL.parse(expression);
-      }
-   };
+   private final ThreadLocal<ObjectCache<String, Script>> expressionCache = ThreadLocal.withInitial(() -> new ObjectCache<>(GROOVY_SHELL::parse));
 
    @Override
    public Object evaluate(final String expression, final Map<String, ?> values) throws ExpressionEvaluationException {

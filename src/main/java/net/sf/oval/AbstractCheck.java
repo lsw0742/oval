@@ -1,22 +1,19 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval;
 
 import static net.sf.oval.Validator.*;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.oval.context.OValContext;
 import net.sf.oval.expression.ExpressionLanguage;
+import net.sf.oval.internal.util.StringUtils;
 
 /**
  * Partial implementation of check classes.
@@ -142,7 +139,7 @@ public abstract class AbstractCheck implements Check {
    }
 
    @Override
-   public boolean isActive(final Object validatedObject, final Object valueToValidate, final Validator validator) {
+   public boolean isActive(final Object validatedObject, final Object valueToValidate, final ValidationCycle cycle) {
       if (when == null)
          return true;
 
@@ -155,7 +152,7 @@ public abstract class AbstractCheck implements Check {
       values.put("_value", valueToValidate);
       values.put("_this", validatedObject);
 
-      final ExpressionLanguage el = validator.getExpressionLanguageRegistry().getExpressionLanguage(whenLang);
+      final ExpressionLanguage el = cycle.getValidator().getExpressionLanguageRegistry().getExpressionLanguage(whenLang);
       return el.evaluateAsBoolean(whenFormula, values);
    }
 
@@ -204,19 +201,17 @@ public abstract class AbstractCheck implements Check {
 
    @Override
    public void setWhen(final String when) {
-      synchronized (this) {
-         if (when == null || when.length() == 0) {
-            this.when = null;
-            whenFormula = null;
-            whenLang = null;
-         } else {
-            final String[] parts = when.split(":", 2);
-            if (parts.length == 0)
-               throw new IllegalArgumentException("[when] is missing the scripting language declaration");
-            this.when = when;
-            whenLang = parts[0];
-            whenFormula = parts[1];
-         }
+      if (when == null || when.length() == 0) {
+         this.when = null;
+         whenFormula = null;
+         whenLang = null;
+      } else {
+         final List<String> parts = StringUtils.split(when, ':', 2);
+         if (parts.size() < 2)
+            throw new IllegalArgumentException("[when] is missing the scripting language declaration");
+         this.when = when;
+         whenLang = parts.get(0);
+         whenFormula = parts.get(1);
       }
    }
 }

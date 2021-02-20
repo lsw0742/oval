@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.expression;
 
 import java.util.Map;
@@ -30,14 +25,11 @@ public class ExpressionLanguageJavaScriptImpl extends AbstractExpressionLanguage
 
    private final Scriptable parentScope;
 
-   private final ObjectCache<String, Script> expressionCache = new ObjectCache<String, Script>() {
-      @Override
-      protected Script load(final String expression) {
-         final Context ctx = ContextFactory.getGlobal().enterContext();
-         ctx.setOptimizationLevel(9);
-         return ctx.compileString(expression, "<cmd>", 1, null);
-      }
-   };
+   private final ObjectCache<String, Script> expressionCache = new ObjectCache<>(expression -> {
+      final Context ctx = ContextFactory.getGlobal().enterContext();
+      ctx.setOptimizationLevel(9);
+      return ctx.compileString(expression, "<cmd>", 1, null);
+   });
 
    public ExpressionLanguageJavaScriptImpl() {
       final Context ctx = ContextFactory.getGlobal().enterContext();

@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.ogn;
 
 import java.lang.reflect.AccessibleObject;
@@ -16,14 +11,15 @@ import java.lang.reflect.Method;
 import net.sf.oval.exception.InvalidConfigurationException;
 import net.sf.oval.internal.util.Assert;
 import net.sf.oval.internal.util.ReflectionUtils;
+import net.sf.oval.internal.util.StringUtils;
 
 /**
  * Default object graph navigator implementation.
- * 
+ *
  * Object path separator is a colon (.), e.g. owner.address.street
- * 
+ *
  * The implementation currently is limited to address fields and properties. Separate items of arrays, maps or keys cannot be addressed.
- * 
+ *
  * @author Sebastian Thomschke
  */
 public class ObjectGraphNavigatorDefaultImpl implements ObjectGraphNavigator {
@@ -35,7 +31,7 @@ public class ObjectGraphNavigatorDefaultImpl implements ObjectGraphNavigator {
       Object parent = null;
       Object target = root;
       AccessibleObject targetAccessor = null;
-      for (final String chunk : path.split("\\.")) {
+      for (final String chunk : StringUtils.split(path, '.', -1)) {
          parent = target;
          if (parent == null)
             return null;

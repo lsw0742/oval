@@ -1,15 +1,13 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.guard;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
+
+import org.junit.Test;
+
 import net.sf.oval.constraint.Assert;
 import net.sf.oval.constraint.Length;
 import net.sf.oval.exception.ConstraintsViolatedException;
@@ -19,7 +17,8 @@ import net.sf.oval.guard.Guarded;
 /**
  * @author Sebastian Thomschke
  */
-public class MethodReturnValueConstraintsValidationTest extends TestCase {
+public class MethodReturnValueConstraintsValidationTest {
+
    @Guarded
    public static class TestEntity {
       protected String name = "";
@@ -35,6 +34,7 @@ public class MethodReturnValueConstraintsValidationTest extends TestCase {
       }
    }
 
+   @Test
    public void testMethodReturnValueConstraintValidation() {
       final Guard guard = new Guard();
 
@@ -45,20 +45,20 @@ public class MethodReturnValueConstraintsValidationTest extends TestCase {
       try {
          t.name = null;
          t.getName();
-         fail();
+         failBecauseExceptionWasNotThrown(ConstraintsViolatedException.class);
       } catch (final ConstraintsViolatedException e) {
-         assertTrue(e.getConstraintViolations().length == 1);
-         assertTrue(e.getConstraintViolations()[0].getMessage().equals("NOT_NULL"));
+         assertThat(e.getConstraintViolations()).hasSize(1);
+         assertThat(e.getConstraintViolations()[0].getMessage()).isEqualTo("NOT_NULL");
       }
 
       t.name = "testtest";
 
       try {
          t.getName();
-         fail();
+         failBecauseExceptionWasNotThrown(ConstraintsViolatedException.class);
       } catch (final ConstraintsViolatedException e) {
-         assertTrue(e.getConstraintViolations().length == 1);
-         assertTrue(e.getConstraintViolations()[0].getMessage().equals("LENGTH"));
+         assertThat(e.getConstraintViolations()).hasSize(1);
+         assertThat(e.getConstraintViolations()[0].getMessage()).isEqualTo("LENGTH");
       }
    }
 }

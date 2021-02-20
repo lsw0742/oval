@@ -1,17 +1,15 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.validator;
+
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import net.sf.oval.ConstraintViolation;
 import net.sf.oval.Validator;
 import net.sf.oval.constraint.CheckWith;
@@ -22,7 +20,8 @@ import net.sf.oval.context.OValContext;
 /**
  * @author Sebastian Thomschke
  */
-public class CheckWithListConstraintTest extends TestCase {
+public class CheckWithListConstraintTest {
+
    protected static class TestEntity1 {
       protected static class NameCheck1 implements SimpleCheck {
          protected static final long serialVersionUID = 1L;
@@ -68,6 +67,7 @@ public class CheckWithListConstraintTest extends TestCase {
       }
    }
 
+   @Test
    public void testCheckWith1() {
       final Validator validator = new Validator();
 
@@ -76,21 +76,22 @@ public class CheckWithListConstraintTest extends TestCase {
       List<ConstraintViolation> violations;
 
       violations = validator.validate(t);
-      assertEquals(1, violations.size());
+      assertThat(violations).hasSize(1);
 
       t.name = "";
       violations = validator.validate(t);
-      assertEquals(1, violations.size());
+      assertThat(violations).hasSize(1);
 
       t.name = "12345";
       violations = validator.validate(t);
-      assertEquals(1, violations.size());
+      assertThat(violations).hasSize(1);
 
       t.name = "1234";
       violations = validator.validate(t);
-      assertEquals(0, violations.size());
+      assertThat(violations).isEmpty();
    }
 
+   @Test
    public void testCheckWith2() {
       final Validator validator = new Validator();
 
@@ -99,18 +100,18 @@ public class CheckWithListConstraintTest extends TestCase {
       List<ConstraintViolation> violations;
 
       violations = validator.validate(t);
-      assertEquals(1, violations.size());
+      assertThat(violations).hasSize(1);
 
       t.name = "";
       violations = validator.validate(t);
-      assertEquals(1, violations.size());
+      assertThat(violations).hasSize(1);
 
       t.name = "12345";
       violations = validator.validate(t);
-      assertEquals(1, violations.size());
+      assertThat(violations).hasSize(1);
 
       t.name = "1234";
       violations = validator.validate(t);
-      assertEquals(0, violations.size());
+      assertThat(violations).isEmpty();
    }
 }

@@ -1,15 +1,10 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.validator;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +19,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import net.sf.oval.ConstraintViolation;
 import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.BeanValidationAnnotationsConfigurer;
@@ -32,7 +28,8 @@ import net.sf.oval.configuration.annotation.BeanValidationAnnotationsConfigurer;
 /**
  * @author Sebastian Thomschke
  */
-public class BeanValidationAnnotationsConfigurerTest extends TestCase {
+public class BeanValidationAnnotationsConfigurerTest {
+
    @Entity
    protected static class TestEntity {
       private final List<String> description = new ArrayList<>();
@@ -60,6 +57,7 @@ public class BeanValidationAnnotationsConfigurerTest extends TestCase {
       }
    }
 
+   @Test
    public void testBeanValidationAnnotationsConfigurer() {
       final Validator v = new Validator(new BeanValidationAnnotationsConfigurer());
       List<ConstraintViolation> violations;
@@ -71,11 +69,16 @@ public class BeanValidationAnnotationsConfigurerTest extends TestCase {
          // code is null
          // description is empty
          // parent is null
-         assertEquals(3, violations.size());
-
-         final String[] msgs = {violations.get(0).getMessage(), violations.get(1).getMessage(), violations.get(2).getMessage()};
-         Arrays.sort(msgs);
-         assertArrayEquals(new String[] {"CODE_NOT_NULL", "DESCRIPTION_NOT_EMPTY", "PARENT_NOT_NULL"}, msgs);
+         assertThat(violations.stream().map(ConstraintViolation::getMessage)).containsOnly( //
+            "CODE_NOT_NULL", //
+            "DESCRIPTION_NOT_EMPTY", //
+            "PARENT_NOT_NULL" //
+         );
+         assertThat(violations.stream().map(ConstraintViolation::getContextPathAsString)).containsOnly( //
+            TestEntity.class.getName() + ".code", //
+            TestEntity.class.getName() + ".getDescription()", //
+            TestEntity.class.getName() + ".parent" //
+         );
       }
 
       {
@@ -85,7 +88,16 @@ public class BeanValidationAnnotationsConfigurerTest extends TestCase {
 
          violations = v.validate(entity);
          // parent is invalid
-         assertEquals(1, violations.size());
+         assertThat(violations.stream().map(ConstraintViolation::getMessage)).containsOnly( //
+            "CODE_NOT_NULL", //
+            "DESCRIPTION_NOT_EMPTY", //
+            "PARENT_NOT_NULL" //
+         );
+         assertThat(violations.stream().map(ConstraintViolation::getContextPathAsString)).containsOnly( //
+            TestEntity.class.getName() + ".parent.code", //
+            TestEntity.class.getName() + ".parent.getDescription()", //
+            TestEntity.class.getName() + ".parent.parent" //
+         );
       }
 
       {
@@ -94,7 +106,7 @@ public class BeanValidationAnnotationsConfigurerTest extends TestCase {
          entity.parent.parent = entity;
 
          violations = v.validate(entity);
-         assertEquals(0, violations.size());
+         assertThat(violations).isEmpty();
       }
 
       {
@@ -102,8 +114,16 @@ public class BeanValidationAnnotationsConfigurerTest extends TestCase {
 
          violations = v.validate(entity);
          // sibling is invalid
-         assertEquals(1, violations.size());
-         assertEquals(true, violations.get(0).getMessage().contains("sibling"));
+         assertThat(violations.stream().map(ConstraintViolation::getMessage)).containsOnly( //
+            "CODE_NOT_NULL", //
+            "DESCRIPTION_NOT_EMPTY", //
+            "PARENT_NOT_NULL" //
+         );
+         assertThat(violations.stream().map(ConstraintViolation::getContextPathAsString)).containsOnly( //
+            TestEntity.class.getName() + ".sibling.code", //
+            TestEntity.class.getName() + ".sibling.getDescription()", //
+            TestEntity.class.getName() + ".sibling.parent" //
+         );
       }
 
       {
@@ -112,7 +132,7 @@ public class BeanValidationAnnotationsConfigurerTest extends TestCase {
          entity.sibling.parent = entity;
 
          violations = v.validate(entity);
-         assertEquals(0, violations.size());
+         assertThat(violations).isEmpty();
       }
 
       // Size test
@@ -120,7 +140,7 @@ public class BeanValidationAnnotationsConfigurerTest extends TestCase {
          entity.code = "12345";
          violations = v.validate(entity);
          // code is too long
-         assertEquals(1, violations.size());
+         assertThat(violations).hasSize(1);
          entity.code = "";
       }
 
@@ -131,15 +151,23 @@ public class BeanValidationAnnotationsConfigurerTest extends TestCase {
          entity.children.add(d);
 
          violations = v.validate(entity);
-         assertEquals(1, violations.size());
-         assertEquals("net.sf.oval.constraint.AssertValid", violations.get(0).getErrorCode());
+         assertThat(violations.stream().map(ConstraintViolation::getMessage)).containsOnly( //
+            "CODE_NOT_NULL", //
+            "DESCRIPTION_NOT_EMPTY", //
+            "PARENT_NOT_NULL" //
+         );
+         assertThat(violations.stream().map(ConstraintViolation::getContextPathAsString)).containsOnly( //
+            TestEntity.class.getName() + ".children[0].code", //
+            TestEntity.class.getName() + ".children[0].getDescription()", //
+            TestEntity.class.getName() + ".children[0].parent" //
+         );
 
          d.code = "";
          d.description.add("");
          d.parent = entity;
 
          violations = v.validate(entity);
-         assertEquals(0, violations.size());
+         assertThat(violations).isEmpty();
       }
 
       // No null in field collection test
@@ -147,13 +175,13 @@ public class BeanValidationAnnotationsConfigurerTest extends TestCase {
          entity.children = new ArrayList<>();
 
          violations = v.validate(entity);
-         assertEquals(0, violations.size());
+         assertThat(violations).isEmpty();
 
          entity.children.add(null);
 
          violations = v.validate(entity);
-         assertEquals(1, violations.size());
-         assertEquals("CHILDREN_ELEMENT_NOT_NULL", violations.get(0).getMessage());
+         assertThat(violations).hasSize(1);
+         assertThat(violations.get(0).getMessage()).isEqualTo("CHILDREN_ELEMENT_NOT_NULL");
       }
 
       // No null in field map test
@@ -163,10 +191,10 @@ public class BeanValidationAnnotationsConfigurerTest extends TestCase {
          entity.props.put("1", null);
 
          violations = v.validate(entity);
-         assertEquals(2, violations.size());
+         assertThat(violations).hasSize(2);
          final String[] msgs = {violations.get(0).getMessage(), violations.get(1).getMessage()};
          Arrays.sort(msgs);
-         assertArrayEquals(new String[] {"KEY_NOT_NULL", "VALUE_NOT_NULL"}, msgs);
+         assertThat(msgs).isEqualTo(new String[] {"KEY_NOT_NULL", "VALUE_NOT_NULL"});
 
          entity.props.clear();
       }
@@ -178,8 +206,8 @@ public class BeanValidationAnnotationsConfigurerTest extends TestCase {
          entity.description.add(null);
 
          violations = v.validate(entity);
-         assertEquals(1, violations.size());
-         assertEquals("DESCRIPTION_ELEMENT_NOT_NULL", violations.get(0).getMessage());
+         assertThat(violations).hasSize(1);
+         assertThat(violations.get(0).getMessage()).isEqualTo("DESCRIPTION_ELEMENT_NOT_NULL");
       }
 
    }

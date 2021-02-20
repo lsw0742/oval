@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.configuration.annotation;
 
 import static net.sf.oval.Validator.*;
@@ -50,6 +45,7 @@ import net.sf.oval.guard.PostValidateThis;
 import net.sf.oval.guard.Pre;
 import net.sf.oval.guard.PreCheck;
 import net.sf.oval.guard.PreValidateThis;
+import net.sf.oval.internal.util.ArrayUtils;
 import net.sf.oval.internal.util.Assert;
 import net.sf.oval.internal.util.ReflectionUtils;
 
@@ -92,11 +88,11 @@ public class AnnotationsConfigurer implements Configurer {
          final ParameterConfiguration paramCfg = new ParameterConfiguration();
          paramCfgs.add(paramCfg);
          paramCfg.type = paramTypes[i];
-         if (paramChecks.size() > 0) {
+         if (!paramChecks.isEmpty()) {
             paramCfg.checks = paramChecks;
             paramChecks = cf.createList(2); // create a new list for the next parameter having checks
          }
-         if (paramCheckExclusions.size() > 0) {
+         if (!paramCheckExclusions.isEmpty()) {
             paramCfg.checkExclusions = paramCheckExclusions;
             paramCheckExclusions = cf.createList(2); // create a new list for the next parameter having check exclusions
          }
@@ -125,7 +121,7 @@ public class AnnotationsConfigurer implements Configurer {
           * check if anything has been configured for this constructor at all
           */
          final boolean postValidateThis = ctor.isAnnotationPresent(PostValidateThis.class);
-         if (postValidateThis || paramCfgs.size() > 0) {
+         if (postValidateThis || !paramCfgs.isEmpty()) {
             if (classCfg.constructorConfigurations == null) {
                classCfg.constructorConfigurations = getCollectionFactory().createSet(2);
             }
@@ -161,7 +157,7 @@ public class AnnotationsConfigurer implements Configurer {
          /*
           * check if anything has been configured for this field at all
           */
-         if (checks.size() > 0) {
+         if (!checks.isEmpty()) {
             if (classCfg.fieldConfigurations == null) {
                classCfg.fieldConfigurations = cf.createSet(2);
             }
@@ -193,7 +189,11 @@ public class AnnotationsConfigurer implements Configurer {
          boolean postValidateThis = false;
 
          // loop over all annotations
-         for (final Annotation anno : ReflectionUtils.getAnnotations(method, Boolean.TRUE.equals(classCfg.inspectInterfaces))) {
+         for (final Annotation anno : ReflectionUtils.getAnnotations(method, //
+            Boolean.TRUE.equals(classCfg.inspectInterfaces), //
+            classCfg.includedInterfaces, //
+            classCfg.excludedInterfaces //
+         )) {
             if (anno instanceof Pre) {
                final PreCheck pc = new PreCheck();
                pc.configure((Pre) anno);
@@ -215,19 +215,29 @@ public class AnnotationsConfigurer implements Configurer {
 
          initializeGenericTypeChecks(method.getReturnType(), method.getAnnotatedReturnType(), returnValueChecks);
 
+         if (Boolean.TRUE.equals(classCfg.inspectInterfaces)) {
+            for (final Method interfaceMethod : ReflectionUtils.getInterfaceMethods(method, classCfg.includedInterfaces, classCfg.excludedInterfaces)) {
+               initializeGenericTypeChecks(interfaceMethod.getReturnType(), interfaceMethod.getAnnotatedReturnType(), returnValueChecks);
+            }
+         }
+
          /*
           * determine parameter checks
           */
          final List<ParameterConfiguration> paramCfg = _createParameterConfigs( //
             method.getParameterTypes(), //
-            ReflectionUtils.getParameterAnnotations(method, Boolean.TRUE.equals(classCfg.inspectInterfaces)), //
+            ReflectionUtils.getParameterAnnotations(method, //
+               Boolean.TRUE.equals(classCfg.inspectInterfaces), //
+               classCfg.includedInterfaces, //
+               classCfg.excludedInterfaces //
+            ), //
             method.getAnnotatedParameterTypes() //
          );
 
          /*
           * check if anything has been configured for this method at all
           */
-         if (preValidateThis || postValidateThis || paramCfg.size() > 0 || returnValueChecks.size() > 0 || preChecks.size() > 0 || postChecks.size() > 0) {
+         if (preValidateThis || postValidateThis || !paramCfg.isEmpty() || !returnValueChecks.isEmpty() || !preChecks.isEmpty() || !postChecks.isEmpty()) {
             if (classCfg.methodConfigurations == null) {
                classCfg.methodConfigurations = cf.createSet(2);
             }
@@ -235,20 +245,24 @@ public class AnnotationsConfigurer implements Configurer {
             final MethodConfiguration mc = new MethodConfiguration();
             mc.name = method.getName();
             mc.parameterConfigurations = paramCfg;
-            mc.isInvariant = ReflectionUtils.isAnnotationPresent(method, IsInvariant.class, Boolean.TRUE.equals(classCfg.inspectInterfaces));
+            mc.isInvariant = ReflectionUtils.isAnnotationPresent(method, IsInvariant.class, //
+               Boolean.TRUE.equals(classCfg.inspectInterfaces), //
+               classCfg.includedInterfaces, //
+               classCfg.excludedInterfaces //
+            );
             mc.preCheckInvariants = preValidateThis;
             mc.postCheckInvariants = postValidateThis;
-            if (returnValueChecks.size() > 0) {
+            if (!returnValueChecks.isEmpty()) {
                mc.returnValueConfiguration = new MethodReturnValueConfiguration();
                mc.returnValueConfiguration.checks = returnValueChecks;
                returnValueChecks = cf.createList(2); // create a new list for the next method having return value checks
             }
-            if (preChecks.size() > 0) {
+            if (!preChecks.isEmpty()) {
                mc.preExecutionConfiguration = new MethodPreExecutionConfiguration();
                mc.preExecutionConfiguration.checks = preChecks;
                preChecks = cf.createList(2); // create a new list for the next method having pre checks
             }
-            if (postChecks.size() > 0) {
+            if (!postChecks.isEmpty()) {
                mc.postExecutionConfiguration = new MethodPostExecutionConfiguration();
                mc.postExecutionConfiguration.checks = postChecks;
                postChecks = cf.createList(2); // create a new list for the next method having post checks
@@ -261,7 +275,11 @@ public class AnnotationsConfigurer implements Configurer {
    protected void configureObjectLevelChecks(final ClassConfiguration classCfg) {
       final List<Check> checks = getCollectionFactory().createList(2);
 
-      for (final Annotation anno : ReflectionUtils.getAnnotations(classCfg.type, Boolean.TRUE.equals(classCfg.inspectInterfaces)))
+      for (final Annotation anno : ReflectionUtils.getAnnotations(classCfg.type, //
+         Boolean.TRUE.equals(classCfg.inspectInterfaces), //
+         classCfg.includedInterfaces, //
+         classCfg.excludedInterfaces //
+      ))
          // check if the current annotation is a constraint annotation
          if (anno.annotationType().isAnnotationPresent(Constraint.class)) {
             checks.add(initializeCheck(anno));
@@ -269,31 +287,37 @@ public class AnnotationsConfigurer implements Configurer {
             initializeChecks(anno, checks);
          }
 
-      if (checks.size() > 0) {
+      if (!checks.isEmpty()) {
          classCfg.objectConfiguration = new ObjectConfiguration();
          classCfg.objectConfiguration.checks = checks;
       }
    }
 
    @Override
+   @SuppressWarnings("deprecation")
    public ClassConfiguration getClassConfiguration(final Class<?> clazz) {
       final ClassConfiguration classCfg = new ClassConfiguration();
       classCfg.type = clazz;
 
       final Guarded guarded = clazz.getAnnotation(Guarded.class);
+      final Validatable validatable = clazz.getAnnotation(Validatable.class);
 
       if (guarded == null) {
          classCfg.applyFieldConstraintsToConstructors = false;
          classCfg.applyFieldConstraintsToSetters = false;
          classCfg.assertParametersNotNull = false;
          classCfg.checkInvariants = false;
-         classCfg.inspectInterfaces = false;
+         classCfg.inspectInterfaces = validatable == null || validatable.inspectInterfaces();
       } else {
          classCfg.applyFieldConstraintsToConstructors = guarded.applyFieldConstraintsToConstructors();
          classCfg.applyFieldConstraintsToSetters = guarded.applyFieldConstraintsToSetters();
          classCfg.assertParametersNotNull = guarded.assertParametersNotNull();
          classCfg.checkInvariants = guarded.checkInvariants();
-         classCfg.inspectInterfaces = guarded.inspectInterfaces();
+         classCfg.inspectInterfaces = validatable == null ? guarded.inspectInterfaces() : validatable.inspectInterfaces();
+      }
+      if (validatable != null) {
+         classCfg.excludedInterfaces = ArrayUtils.asSet(validatable.excludedInterfaces());
+         classCfg.includedInterfaces = ArrayUtils.asSet(validatable.includedInterfaces());
       }
 
       configureObjectLevelChecks(classCfg);
@@ -430,9 +454,7 @@ public class AnnotationsConfigurer implements Configurer {
       final Class<AnnotationCheck<ConstraintAnnotation>> checkClass) throws OValException {
       try {
          return checkClass.newInstance();
-      } catch (final InstantiationException ex) {
-         throw new ReflectionException("Cannot initialize constraint check " + checkClass.getName(), ex);
-      } catch (final IllegalAccessException ex) {
+      } catch (final InstantiationException | IllegalAccessException ex) {
          throw new ReflectionException("Cannot initialize constraint check " + checkClass.getName(), ex);
       }
    }

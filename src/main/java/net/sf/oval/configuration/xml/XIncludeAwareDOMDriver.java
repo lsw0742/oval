@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.configuration.xml;
 
 import java.io.File;
@@ -20,7 +15,6 @@ import java.net.URL;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.FactoryConfigurationError;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -85,8 +79,6 @@ public class XIncludeAwareDOMDriver extends AbstractDriver {
 
          final Document doc = docBuilder.parse(source);
          return new DomReader(doc, NAME_CODER);
-      } catch (final FactoryConfigurationError ex) {
-         throw new StreamException(ex);
       } catch (final Exception ex) {
          throw new StreamException(ex);
       }

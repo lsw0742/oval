@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.constraint;
 
 import static net.sf.oval.Validator.*;
@@ -16,12 +11,12 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collections;
 import java.util.List;
 
 import net.sf.oval.ConstraintTarget;
-import net.sf.oval.Validator;
+import net.sf.oval.ValidationCycle;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
-import net.sf.oval.context.OValContext;
 import net.sf.oval.internal.Log;
 
 /**
@@ -109,7 +104,7 @@ public class AssertURLCheck extends AbstractAnnotationCheck<AssertURL> {
     * @return the permittedURISchemes
     */
    public URIScheme[] getPermittedURISchemes() {
-      return permittedURISchemes.size() == 0 ? null : permittedURISchemes.toArray(new URIScheme[permittedURISchemes.size()]);
+      return permittedURISchemes.isEmpty() ? null : permittedURISchemes.toArray(new URIScheme[permittedURISchemes.size()]);
    }
 
    /**
@@ -122,7 +117,7 @@ public class AssertURLCheck extends AbstractAnnotationCheck<AssertURL> {
    }
 
    @Override
-   public boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final OValContext context, final Validator validator) {
+   public boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final ValidationCycle cycle) {
       if (valueToValidate == null)
          return true;
 
@@ -175,18 +170,14 @@ public class AssertURLCheck extends AbstractAnnotationCheck<AssertURL> {
    public void setPermittedURISchemes(final URIScheme... permittedURISchemes) {
       this.permittedURISchemes.clear();
       if (permittedURISchemes != null) {
-         for (final URIScheme scheme : permittedURISchemes) {
-            this.permittedURISchemes.add(scheme);
-         }
+         Collections.addAll(this.permittedURISchemes, permittedURISchemes);
       }
    }
 
    public void setPermittedURISchemes(final List<URIScheme> permittedURISchemes) {
       this.permittedURISchemes.clear();
       if (permittedURISchemes != null) {
-         for (final URIScheme scheme : permittedURISchemes) {
-            this.permittedURISchemes.add(scheme);
-         }
+         this.permittedURISchemes.addAll(permittedURISchemes);
       }
    }
 }

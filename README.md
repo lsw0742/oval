@@ -1,14 +1,15 @@
 # OVal - the object validation framework for Java
 
-[![Build Status](https://travis-ci.com/sebthom/oval.svg?branch=master)](https://travis-ci.com/sebthom/oval)
-[![License](https://img.shields.io/badge/License-Eclipse%20Public%20License%202.0-blue.svg)](LICENSE.txt)
+[![Build Status](https://img.shields.io/github/workflow/status/sebthom/oval/Build)](https://github.com/sebthom/oval/actions?query=workflow%3A%22Build%22)
+[![License](https://img.shields.io/github/license/sebthom/oval.svg?color=blue)](LICENSE.txt)
+[![Maintainability](https://api.codeclimate.com/v1/badges/2178a43bf71aaf2622e6/maintainability)](https://codeclimate.com/github/sebthom/oval/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/2178a43bf71aaf2622e6/test_coverage)](https://codeclimate.com/github/sebthom/oval/test_coverage)
 [![Changelog](https://img.shields.io/badge/changelog-blue)](CHANGELOG.md)
-[![Download](https://api.bintray.com/packages/sebthom/maven/oval/images/download.svg)](https://bintray.com/sebthom/maven/oval/_latestVersion)
-
-[comment]: # (https://img.shields.io/github/license/sebthom/oval.svg?label=License)
+[![Bintray](https://img.shields.io/bintray/v/sebthom/maven/oval?label=jcenter.bintray)](https://bintray.com/sebthom/maven/oval/_latestVersion)
 
 1. [What is it?](#what-is-it)
 1. [Java Compatibility](#compatibility)
+1. [Binaries](#binaries)
 1. [User Guide](#user-guide)
 1. [Articles about OVal](#articles-about-oval)
 1. [Projects using OVal](#projects-using-oval)
@@ -181,3 +182,10 @@ There exist some articles and blog entries talking about and/or referencing OVal
 ## <a name="license"></a>License
 
 All files are released under the [Eclipse Public License 2.0](LICENSE.txt).
+
+Individual files contain the following tag instead of the full license text:
+```
+SPDX-License-Identifier: EPL-2.0
+```
+
+This enables machine processing of license information based on the SPDX License Identifiers that are available here: https://spdx.org/licenses/.

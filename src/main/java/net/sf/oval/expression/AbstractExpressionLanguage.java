@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.expression;
 
 import java.util.Map;
@@ -23,10 +18,13 @@ public abstract class AbstractExpressionLanguage implements ExpressionLanguage {
       final Object result = evaluate(expression, values);
       if (result == null)
          return false;
+
       if (result instanceof Boolean)
          return (Boolean) result;
+
       if (result instanceof Number)
          return ((Number) result).doubleValue() != 0.0;
+
       if (result instanceof CharSequence) {
          final CharSequence seq = (CharSequence) result;
          if (seq.length() == 0)
@@ -38,11 +36,12 @@ public abstract class AbstractExpressionLanguage implements ExpressionLanguage {
             if (ch == '1')
                return true;
          }
-         final String str = seq.toString().toLowerCase();
-         if ("true".equals(str))
-            return true;
-         if ("false".equals(str))
-            return true;
+         switch (seq.toString().toLowerCase()) {
+            case "true":
+               return true;
+            case "false":
+               return false;
+         }
       }
       throw new ExpressionEvaluationException("The script [" + expression + "] must return a boolean value but returned [" + result + "]");
    }

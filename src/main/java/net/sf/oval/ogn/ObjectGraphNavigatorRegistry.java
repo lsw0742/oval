@@ -1,17 +1,12 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.ogn;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import net.sf.oval.Validator;
 import net.sf.oval.exception.ObjectGraphNavigatorNotAvailableException;
 import net.sf.oval.internal.Log;
 import net.sf.oval.internal.util.Assert;
@@ -19,12 +14,11 @@ import net.sf.oval.internal.util.ReflectionUtils;
 
 /**
  * @author Sebastian Thomschke
- *
  */
 public class ObjectGraphNavigatorRegistry {
    private static final Log LOG = Log.getLog(ObjectGraphNavigatorRegistry.class);
 
-   private final Map<String, ObjectGraphNavigator> cache = Validator.getCollectionFactory().createMap(2);
+   private final Map<String, ObjectGraphNavigator> cache = new ConcurrentHashMap<>(2);
 
    private ObjectGraphNavigator _initializeDefaultOGN(final String id) {
       // JXPath support
@@ -41,8 +35,9 @@ public class ObjectGraphNavigatorRegistry {
 
       ObjectGraphNavigator ogn = cache.get(id);
 
-      if (ogn == null)
+      if (ogn == null) {
          ogn = _initializeDefaultOGN(id);
+      }
 
       if (ogn == null)
          throw new ObjectGraphNavigatorNotAvailableException(id);

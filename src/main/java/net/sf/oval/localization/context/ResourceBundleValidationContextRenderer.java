@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.localization.context;
 
 import java.util.Enumeration;
@@ -35,7 +30,7 @@ import net.sf.oval.internal.Log;
  *
  * <p>
  * The properties file is expected to have values following this scheme
- * 
+ *
  * <pre>
  * label.class=My translated name of the class name
  * label.field.firstname=My translated name of the field "firstname"
@@ -43,7 +38,7 @@ import net.sf.oval.internal.Log;
  * label.parameter.amount=My translated name of a constructor/method parameter "amount"
  * label.method.increase=My translated name of the method "increase"
  * </pre>
- * 
+ *
  * @author Sebastian Thomschke
  */
 public class ResourceBundleValidationContextRenderer implements OValContextRenderer {
@@ -63,40 +58,40 @@ public class ResourceBundleValidationContextRenderer implements OValContextRende
    }
 
    @Override
-   public String render(final OValContext ovalContext) {
+   public String render(final OValContext context) {
       final String baseName;
       final String key;
-      if (ovalContext instanceof ClassContext) {
-         final ClassContext ctx = (ClassContext) ovalContext;
+      if (context instanceof ClassContext) {
+         final ClassContext ctx = (ClassContext) context;
          baseName = ctx.getClazz().getName();
          key = "label.class";
-      } else if (ovalContext instanceof FieldContext) {
-         final FieldContext ctx = (FieldContext) ovalContext;
+      } else if (context instanceof FieldContext) {
+         final FieldContext ctx = (FieldContext) context;
          baseName = ctx.getField().getDeclaringClass().getName();
          final String fieldName = ctx.getField().getName();
          key = "label.field." + fieldName;
-      } else if (ovalContext instanceof ConstructorParameterContext) {
-         final ConstructorParameterContext ctx = (ConstructorParameterContext) ovalContext;
+      } else if (context instanceof ConstructorParameterContext) {
+         final ConstructorParameterContext ctx = (ConstructorParameterContext) context;
          baseName = ctx.getConstructor().getDeclaringClass().getName();
          key = "label.parameter." + ctx.getParameterName();
-      } else if (ovalContext instanceof MethodParameterContext) {
-         final MethodParameterContext ctx = (MethodParameterContext) ovalContext;
+      } else if (context instanceof MethodParameterContext) {
+         final MethodParameterContext ctx = (MethodParameterContext) context;
          baseName = ctx.getMethod().getDeclaringClass().getName();
          key = "label.parameter." + ctx.getParameterName();
-      } else if (ovalContext instanceof MethodEntryContext) {
-         final MethodEntryContext ctx = (MethodEntryContext) ovalContext;
+      } else if (context instanceof MethodEntryContext) {
+         final MethodEntryContext ctx = (MethodEntryContext) context;
          baseName = ctx.getMethod().getDeclaringClass().getName();
          key = "label.method." + ctx.getMethod().getName();
-      } else if (ovalContext instanceof MethodExitContext) {
-         final MethodExitContext ctx = (MethodExitContext) ovalContext;
+      } else if (context instanceof MethodExitContext) {
+         final MethodExitContext ctx = (MethodExitContext) context;
          baseName = ctx.getMethod().getDeclaringClass().getName();
          key = "label.method." + ctx.getMethod().getName();
-      } else if (ovalContext instanceof MethodReturnValueContext) {
-         final MethodReturnValueContext ctx = (MethodReturnValueContext) ovalContext;
+      } else if (context instanceof MethodReturnValueContext) {
+         final MethodReturnValueContext ctx = (MethodReturnValueContext) context;
          baseName = ctx.getMethod().getDeclaringClass().getName();
          key = "label.method." + ctx.getMethod().getName();
       } else
-         return ovalContext.toString();
+         return context.toString();
 
       try {
          final ResourceBundle bundle = ResourceBundle.getBundle(baseName, getLocale());
@@ -106,6 +101,6 @@ public class ResourceBundleValidationContextRenderer implements OValContextRende
       } catch (final MissingResourceException ex) {
          LOG.debug("Bundle {1} not found", baseName, ex);
       }
-      return ovalContext.toString();
+      return context.toString();
    }
 }

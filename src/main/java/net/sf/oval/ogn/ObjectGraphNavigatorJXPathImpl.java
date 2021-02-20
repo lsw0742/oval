@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.ogn;
 
 import java.lang.reflect.AccessibleObject;
@@ -36,6 +31,7 @@ import net.sf.oval.internal.util.ReflectionUtils;
  * @author Sebastian Thomschke
  */
 public class ObjectGraphNavigatorJXPathImpl implements ObjectGraphNavigator {
+
    protected static final class BeanPointerEx extends BeanPointer {
       private static final long serialVersionUID = 1L;
 
@@ -51,21 +47,24 @@ public class ObjectGraphNavigatorJXPathImpl implements ObjectGraphNavigator {
          this.beanInfo = beanInfo;
       }
 
-      @Override // CHECKSTYLE:IGNORE EqualsHashCode
+      @Override
       public boolean equals(final Object obj) {
-         if (this == obj)
+         if (obj == this)
             return true;
+         if (obj == null || getClass() != obj.getClass())
+            return false;
          if (!super.equals(obj))
             return false;
-         if (getClass() != obj.getClass())
-            return false;
          final BeanPointerEx other = (BeanPointerEx) obj;
-         if (beanInfo == null) {
-            if (other.beanInfo != null)
-               return false;
-         } else if (!beanInfo.equals(other.beanInfo))
-            return false;
-         return true;
+         return beanInfo == other.beanInfo;
+      }
+
+      @Override
+      public int hashCode() {
+         int hash = 7;
+         hash = 31 * hash + super.hashCode();
+         hash = 31 * hash + (beanInfo == null ? 0 : beanInfo.hashCode());
+         return hash;
       }
 
       @Override

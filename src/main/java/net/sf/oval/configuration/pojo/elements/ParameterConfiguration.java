@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.configuration.pojo.elements;
 
 import java.util.List;
@@ -36,10 +31,10 @@ public class ParameterConfiguration extends ConfigurationElement {
    public List<CheckExclusion> checkExclusions;
 
    public boolean hasCheckExclusions() {
-      return checkExclusions != null && checkExclusions.size() > 0;
+      return checkExclusions != null && !checkExclusions.isEmpty();
    }
 
    public boolean hasChecks() {
-      return checks != null && checks.size() > 0;
+      return checks != null && !checks.isEmpty();
    }
 }

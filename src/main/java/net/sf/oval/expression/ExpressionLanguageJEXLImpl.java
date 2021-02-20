@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.expression;
 
 import java.util.Map;
@@ -30,12 +25,7 @@ public class ExpressionLanguageJEXLImpl extends AbstractExpressionLanguage {
       .strict(true) //
       .create();
 
-   private final ObjectCache<String, JexlExpression> expressionCache = new ObjectCache<String, JexlExpression>() {
-      @Override
-      protected JexlExpression load(final String expression) {
-         return JEXL.createExpression(expression);
-      }
-   };
+   private final ObjectCache<String, JexlExpression> expressionCache = new ObjectCache<>(JEXL::createExpression);
 
    @Override
    @SuppressWarnings("unchecked")

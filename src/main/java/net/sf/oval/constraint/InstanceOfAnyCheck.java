@@ -1,21 +1,15 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.constraint;
 
 import static net.sf.oval.Validator.*;
 
 import java.util.Map;
 
-import net.sf.oval.Validator;
+import net.sf.oval.ValidationCycle;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
-import net.sf.oval.context.OValContext;
 import net.sf.oval.internal.util.StringUtils;
 
 /**
@@ -42,7 +36,7 @@ public class InstanceOfAnyCheck extends AbstractAnnotationCheck<InstanceOfAny> {
          for (int i = 0, l = classNames.length; i < l; i++) {
             classNames[i] = types[i].getName();
          }
-         messageVariables.put("types", StringUtils.implode(classNames, ","));
+         messageVariables.put("types", StringUtils.join(classNames, ','));
       }
       return messageVariables;
    }
@@ -52,7 +46,7 @@ public class InstanceOfAnyCheck extends AbstractAnnotationCheck<InstanceOfAny> {
    }
 
    @Override
-   public boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final OValContext context, final Validator validator) {
+   public boolean isSatisfied(final Object validatedObject, final Object valueToValidate, final ValidationCycle cycle) {
       if (valueToValidate == null)
          return true;
 

@@ -1,15 +1,13 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.guard;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
+
+import org.junit.Test;
+
 import net.sf.oval.ConstraintViolation;
 import net.sf.oval.constraint.NotNull;
 import net.sf.oval.context.FieldContext;
@@ -20,7 +18,7 @@ import net.sf.oval.guard.PostValidateThis;
 /**
  * @author Sebastian Thomschke
  */
-public class CheckInvariantsTest extends TestCase {
+public class CheckInvariantsTest {
 
    @Guarded(checkInvariants = true)
    public static class TestEntity {
@@ -53,18 +51,19 @@ public class CheckInvariantsTest extends TestCase {
       }
    }
 
+   @Test
    @SuppressWarnings("unused")
    public void testCheckInvariants() {
 
       try {
          new TestEntity("a", null);
-         fail();
+         failBecauseExceptionWasNotThrown(ConstraintsViolatedException.class);
       } catch (final ConstraintsViolatedException ex) {
          final ConstraintViolation[] violations = ex.getConstraintViolations();
-         assertNotNull(violations);
-         assertEquals(1, violations.length);
-         assertEquals("NOT_NULL", violations[0].getMessage());
-         assertTrue(violations[0].getContext() instanceof FieldContext);
+         assertThat(violations).isNotNull();
+         assertThat(violations).hasSize(1);
+         assertThat(violations[0].getMessage()).isEqualTo("NOT_NULL");
+         assertThat(violations[0].getContext()).isInstanceOf(FieldContext.class);
       }
 
       new TestEntity(null, null);
@@ -72,13 +71,13 @@ public class CheckInvariantsTest extends TestCase {
       final TestEntity e = new TestEntity("a", "b");
       try {
          e.setFieldB(null);
-         fail();
+         failBecauseExceptionWasNotThrown(ConstraintsViolatedException.class);
       } catch (final ConstraintsViolatedException ex) {
          final ConstraintViolation[] violations = ex.getConstraintViolations();
-         assertNotNull(violations);
-         assertEquals(1, violations.length);
-         assertEquals("NOT_NULL", violations[0].getMessage());
-         assertTrue(violations[0].getContext() instanceof FieldContext);
+         assertThat(violations).isNotNull();
+         assertThat(violations).hasSize(1);
+         assertThat(violations[0].getMessage()).isEqualTo("NOT_NULL");
+         assertThat(violations[0].getContext()).isInstanceOf(FieldContext.class);
       }
    }
 

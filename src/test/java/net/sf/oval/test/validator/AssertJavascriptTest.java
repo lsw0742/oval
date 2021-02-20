@@ -1,17 +1,15 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.validator;
+
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import net.sf.oval.ConstraintViolation;
 import net.sf.oval.Validator;
 import net.sf.oval.constraint.Assert;
@@ -19,7 +17,7 @@ import net.sf.oval.constraint.Assert;
 /**
  * @author Sebastian Thomschke
  */
-public class AssertJavascriptTest extends TestCase {
+public class AssertJavascriptTest {
 
    @Assert( //
       expr = "_this.firstName!=null && _this.lastName!=null && (_this.firstName.length() + _this.lastName.length() > 9)", //
@@ -65,6 +63,7 @@ public class AssertJavascriptTest extends TestCase {
       }
    }
 
+   @Test
    public void testConcurrency() throws InterruptedException {
       final Validator validator = new Validator();
 
@@ -77,41 +76,42 @@ public class AssertJavascriptTest extends TestCase {
       thread2.start();
       thread1.join();
       thread2.join();
-      assertFalse(failed[0]);
+      assertThat(failed[0]).isFalse();
    }
 
+   @Test
    public void testJavaScriptExpression() {
       final Validator validator = new Validator();
 
       // test not null
       final Person p = new Person();
       List<ConstraintViolation> violations = validator.validate(p);
-      assertTrue(violations.size() == 4);
+      assertThat(violations).hasSize(4);
 
       // test max length
       p.firstName = "Mike";
       p.lastName = "Mahoney";
-      p.zipCode = "1234567";
+      p.zipCode = "1234567"; // too long
       violations = validator.validate(p);
-      assertTrue(violations.size() == 1);
-      assertTrue(violations.get(0).getErrorCode().equals("C3"));
+      assertThat(violations).hasSize(1);
+      assertThat(violations.get(0).getErrorCode()).isEqualTo("C3");
 
       // test not empty
       p.zipCode = "";
       violations = validator.validate(p);
-      assertTrue(violations.size() == 1);
-      assertTrue(violations.get(0).getErrorCode().equals("C3"));
+      assertThat(violations).hasSize(1);
+      assertThat(violations.get(0).getErrorCode()).isEqualTo("C3");
 
       // test ok
       p.zipCode = "wqeew";
       violations = validator.validate(p);
-      assertTrue(violations.size() == 0);
+      assertThat(violations).isEmpty();
 
       // test object-level constraint
       p.firstName = "12345";
       p.lastName = "1234";
       violations = validator.validate(p);
-      assertTrue(violations.size() == 1);
-      assertTrue(violations.get(0).getErrorCode().equals("C0"));
+      assertThat(violations).hasSize(1);
+      assertThat(violations.get(0).getErrorCode()).isEqualTo("C0");
    }
 }

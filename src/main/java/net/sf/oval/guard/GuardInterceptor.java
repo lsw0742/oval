@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.guard;
 
 import java.lang.reflect.Constructor;
@@ -25,7 +20,7 @@ import net.sf.oval.internal.util.Invocable;
  * @author Sebastian Thomschke
  */
 public class GuardInterceptor implements MethodInterceptor, ConstructorInterceptor {
-   protected static final class MethodInvocable implements Invocable {
+   protected static final class MethodInvocable implements Invocable<Object, Throwable> {
       private final MethodInvocation methodInvocation;
 
       protected MethodInvocable(final MethodInvocation methodInvocation) {
@@ -59,16 +54,12 @@ public class GuardInterceptor implements MethodInterceptor, ConstructorIntercept
       final Object target = constructorInvocation.getThis();
 
       // pre conditions
-      {
-         guard.guardConstructorPre(target, ctor, args);
-      }
+      guard.guardConstructorPre(target, ctor, args);
 
       final Object result = constructorInvocation.proceed();
 
       // post conditions
-      {
-         guard.guardConstructorPost(target, ctor, args);
-      }
+      guard.guardConstructorPost(target, ctor, args);
 
       return result;
    }

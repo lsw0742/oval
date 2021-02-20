@@ -1,15 +1,13 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.guard;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
+
+import org.junit.Test;
+
 import net.sf.oval.ConstraintViolation;
 import net.sf.oval.constraint.Length;
 import net.sf.oval.constraint.NotNull;
@@ -20,7 +18,8 @@ import net.sf.oval.guard.Guard;
 /**
  * @author Sebastian Thomschke
  */
-public class GuardingWithoutGuardedAnnotationTest extends TestCase {
+public class GuardingWithoutGuardedAnnotationTest {
+
    public static class TestEntity {
       @NotNull(message = "NOT_NULL")
       private String name = "";
@@ -44,6 +43,7 @@ public class GuardingWithoutGuardedAnnotationTest extends TestCase {
       }
    }
 
+   @Test
    @SuppressWarnings("unused")
    public void testConstructorParameterConstraints() {
       final Guard guard = new Guard();
@@ -55,13 +55,13 @@ public class GuardingWithoutGuardedAnnotationTest extends TestCase {
        */
       try {
          new TestEntity(null);
-         fail();
+         failBecauseExceptionWasNotThrown(ConstraintsViolatedException.class);
       } catch (final ConstraintsViolatedException e) {
          final ConstraintViolation[] violations = e.getConstraintViolations();
-         assertNotNull(violations);
-         assertEquals(1, violations.length);
-         assertTrue(violations[0].getMessage().equals("NOT_NULL"));
-         assertTrue(violations[0].getContext() instanceof ConstructorParameterContext);
+         assertThat(violations).isNotNull();
+         assertThat(violations).hasSize(1);
+         assertThat(violations[0].getMessage()).isEqualTo("NOT_NULL");
+         assertThat(violations[0].getContext()).isInstanceOf(ConstructorParameterContext.class);
       }
 
       new TestEntity("test");
@@ -71,12 +71,13 @@ public class GuardingWithoutGuardedAnnotationTest extends TestCase {
        */
       try {
          new TestEntity(null, 100);
-         fail(); // invariant check on name fails
+         failBecauseExceptionWasNotThrown(ConstraintsViolatedException.class); // invariant check on name fails
       } catch (final ConstraintsViolatedException ex) {
          // expected
       }
    }
 
+   @Test
    public void testMethodParameterConstraints() {
       final Guard guard = new Guard();
       guard.setInvariantsEnabled(TestEntity.class, true);
@@ -85,23 +86,23 @@ public class GuardingWithoutGuardedAnnotationTest extends TestCase {
       try {
          final TestEntity t1 = new TestEntity("");
          t1.setName(null);
-         fail();
+         failBecauseExceptionWasNotThrown(ConstraintsViolatedException.class);
       } catch (final ConstraintsViolatedException e) {
          final ConstraintViolation[] violations = e.getConstraintViolations();
-         assertNotNull(violations);
-         assertTrue(violations.length > 0);
-         assertTrue(violations[0].getMessage().equals("NOT_NULL"));
+         assertThat(violations).isNotNull();
+         assertThat(violations.length > 0).isTrue();
+         assertThat(violations[0].getMessage()).isEqualTo("NOT_NULL");
       }
 
       try {
          final TestEntity t1 = new TestEntity("");
          t1.setName("12345678");
-         fail();
+         failBecauseExceptionWasNotThrown(ConstraintsViolatedException.class);
       } catch (final ConstraintsViolatedException e) {
          final ConstraintViolation[] violations = e.getConstraintViolations();
-         assertNotNull(violations);
-         assertTrue(violations.length > 0);
-         assertTrue(violations[0].getMessage().equals("LENGTH"));
+         assertThat(violations).isNotNull();
+         assertThat(violations.length > 0).isTrue();
+         assertThat(violations[0].getMessage()).isEqualTo("LENGTH");
       }
    }
 }

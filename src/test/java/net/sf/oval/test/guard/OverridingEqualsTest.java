@@ -1,23 +1,21 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.guard;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
+
+import org.junit.Test;
+
 import net.sf.oval.guard.Guard;
 import net.sf.oval.guard.Guarded;
 
 /**
  * @author Sebastian Thomschke
- *
  */
-public class OverridingEqualsTest extends TestCase {
+public class OverridingEqualsTest {
+
    @Guarded
    public static class Entity {
       protected int foo;
@@ -41,6 +39,7 @@ public class OverridingEqualsTest extends TestCase {
       }
    }
 
+   @Test
    public void testGuarding() {
       final Guard guard = new Guard();
       TestGuardAspect.aspectOf().setGuard(guard);
@@ -50,6 +49,6 @@ public class OverridingEqualsTest extends TestCase {
       final Entity a2 = new Entity();
       a2.foo = 2;
 
-      assertEquals(a1, a2);
+      assertThat(a2).isEqualTo(a1);
    }
 }

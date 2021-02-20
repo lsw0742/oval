@@ -1,24 +1,21 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.integration.spring;
+
+import static org.assertj.core.api.Assertions.*;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import junit.framework.TestCase;
 import net.sf.oval.Validator;
 import net.sf.oval.configuration.annotation.AbstractAnnotationCheck;
 import net.sf.oval.configuration.annotation.AnnotationsConfigurer;
@@ -30,7 +27,8 @@ import net.sf.oval.integration.spring.SpringCheckInitializationListener;
 /**
  * @author Sebastian Thomschke
  */
-public class SpringInjectorTest extends TestCase {
+public class SpringInjectorTest {
+
    public static class Entity {
       @SpringNullContraint
       protected String field;
@@ -60,30 +58,29 @@ public class SpringInjectorTest extends TestCase {
       }
    }
 
+   @Test
    public void testWithoutSpringInjector() {
       final Validator v = new Validator();
       final Entity e = new Entity();
       try {
          v.validate(e);
-         fail("NPE expected.");
+         failBecauseExceptionWasNotThrown(NullPointerException.class);
       } catch (final NullPointerException ex) {
          // expected
       }
    }
 
+   @Test
    public void testWithSpringInjector() {
-      final ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("SpringInjectorTest.xml", SpringInjectorTest.class);
-      try {
+      try (ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("SpringInjectorTest.xml", SpringInjectorTest.class)) {
          final AnnotationsConfigurer myConfigurer = new AnnotationsConfigurer();
          myConfigurer.addCheckInitializationListener(SpringCheckInitializationListener.INSTANCE);
          final Validator v = new Validator(myConfigurer);
 
          final Entity e = new Entity();
-         assertEquals(1, v.validate(e).size());
+         assertThat(v.validate(e)).hasSize(1);
          e.field = "whatever";
-         assertEquals(0, v.validate(e).size());
-      } finally {
-         ctx.close();
+         assertThat(v.validate(e)).isEmpty();
       }
    }
 }

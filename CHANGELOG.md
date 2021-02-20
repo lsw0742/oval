@@ -2,11 +2,63 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
 ## [Unreleased]
+
+
+### Changed
+* Updated tested optional dependencies
+  * MVEL 2.4.12.Final
+  * Spring Framework 5.3.3
+
+
+## [3.1.0] - 2020-12-31
+
+### Fixed
+* restore binary compatibility with ValidationPlugin of Play Framework 1.x
+
+### Added
+* class `ValidationCycle`
+* support recursive validation of classes implementing `java.lang.Iterable`, not only `java.util.Collection`.
+* [github Issues #88](https://github.com/sebthom/oval/issues/88) method `ConstraintViolation.getContextPath()`
+* method `ConstraintViolation.getContextPathAsString()`
+
+### Changed
+* deprecated
+  * method `ConstraintViolation.getCauses()`
+  * method `ConstraintViolation.getContext()`
+  * property `AssertValid.errorCode()`
+  * property `AssertValid.message()`
+  * property `AssertValid.severity()()`
+  * class `ToStringValidationContextRenderer`
+
+
+## [3.0.0] - 2020-12-28
+
+### Fixed
+* [github Issue #91](https://github.com/sebthom/oval/issues/91) Type annotations not read from interface. Thanks to [Gary Madden](https://github.com/gary-madden) for providing the fix.
+* potential memory leak in internal object cache
+
+### Changed
+* **BREAKING** changed default for `@Guarded.inspectInterfaces` from `false` to `true`.
+* deprecated `@Guarded.inspectInterfaces` parameter
+* minor code changes (cleanup)
+* Updated tested optional dependencies
+  * AspectJ 1.9.6
+  * Groovy 3.0.6
+  * MVEL 2.4.11.Final
+  * JRuby 9.2.14.0
+  * OGNL 3.2.18
+  * Rhino 1.7.13
+  * Spring Framework 5.3.2
+  * xStream 1.4.15
+
+### Added
+* `net.sf.oval.configuration.annotation.Validatable` annotation
+
 
 ## [2.1.6] - 2020-06-29
 

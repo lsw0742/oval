@@ -1,15 +1,13 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.guard;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
+
+import org.junit.Test;
+
 import net.sf.oval.constraint.AssertTrue;
 import net.sf.oval.constraint.Length;
 import net.sf.oval.constraint.MatchPattern;
@@ -21,7 +19,8 @@ import net.sf.oval.guard.Guarded;
 /**
  * @author Sebastian Thomschke
  */
-public class ApplyFieldConstraintsToConstructorsTest extends TestCase {
+public class ApplyFieldConstraintsToConstructorsTest {
+
    @Guarded(applyFieldConstraintsToConstructors = true, checkInvariants = false)
    private static class Person {
       @AssertTrue(message = "ASSERT_TRUE")
@@ -57,25 +56,18 @@ public class ApplyFieldConstraintsToConstructorsTest extends TestCase {
     * by default constraints specified for a field are also used for validating
     * method parameters of the corresponding setter methods
     */
+   @Test
    @SuppressWarnings("unused")
    public void testConstrucorParameterValidation() {
+
+      new Person(true, "", "", "12345");
+
+      new Person(null, null, null);
+
       try {
          new Person(false, null, null, null);
       } catch (final ConstraintsViolatedException ex) {
-         assertEquals(ex.getConstraintViolations().length, 4);
+         assertThat(ex.getConstraintViolations()).hasSize(4);
       }
-
-      try {
-         new Person(true, "", "", "12345");
-      } catch (final ConstraintsViolatedException ex) {
-         fail();
-      }
-
-      try {
-         new Person(null, null, null);
-      } catch (final ConstraintsViolatedException ex) {
-         fail();
-      }
-
    }
 }

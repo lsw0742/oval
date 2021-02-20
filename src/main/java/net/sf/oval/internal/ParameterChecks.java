@@ -1,12 +1,7 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.internal;
 
 import java.lang.reflect.Constructor;
@@ -42,14 +37,14 @@ public final class ParameterChecks {
    }
 
    public boolean hasChecks() {
-      return checks.size() > 0;
+      return !checks.isEmpty();
    }
 
    public boolean hasExclusions() {
-      return checkExclusions.size() > 0;
+      return !checkExclusions.isEmpty();
    }
 
    public boolean isEmpty() {
-      return checks.size() == 0 && checkExclusions.size() == 0;
+      return checks.isEmpty() && checkExclusions.isEmpty();
    }
 }

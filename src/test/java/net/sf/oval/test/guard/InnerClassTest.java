@@ -1,15 +1,13 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.guard;
 
-import junit.framework.TestCase;
+import static org.assertj.core.api.Assertions.*;
+
+import org.junit.Test;
+
 import net.sf.oval.constraint.NotNull;
 import net.sf.oval.exception.ConstraintsViolatedException;
 import net.sf.oval.guard.Guard;
@@ -18,7 +16,7 @@ import net.sf.oval.guard.Guarded;
 /**
  * @author Sebastian Thomschke
  */
-public class InnerClassTest extends TestCase {
+public class InnerClassTest {
 
    @Guarded
    protected static class TestEntity {
@@ -31,9 +29,6 @@ public class InnerClassTest extends TestCase {
             this.name = name;
          }
 
-         /**
-          * @param name the name to set
-          */
          public void setName(final String name) {
             this.name = name;
          }
@@ -50,15 +45,13 @@ public class InnerClassTest extends TestCase {
             this.name = name;
          }
 
-         /**
-          * @param name the name to set
-          */
          public void setName(final String name) {
             this.name = name;
          }
       }
    }
 
+   @Test
    @SuppressWarnings("unused")
    public void testInnerClassGuarded() {
       final Guard guard = new Guard();
@@ -67,18 +60,16 @@ public class InnerClassTest extends TestCase {
 
       try {
          new TestEntity.InnerClassGuarded(null);
-         fail();
+         failBecauseExceptionWasNotThrown(ConstraintsViolatedException.class);
       } catch (final ConstraintsViolatedException ex) {
          // expected
       }
 
-      TestEntity.InnerClassGuarded instance = null;
-
-      instance = new TestEntity.InnerClassGuarded("");
+      final TestEntity.InnerClassGuarded instance = new TestEntity.InnerClassGuarded("");
 
       try {
          instance.setName(null);
-         fail();
+         failBecauseExceptionWasNotThrown(ConstraintsViolatedException.class);
       } catch (final ConstraintsViolatedException ex) {
          // expected
       }
@@ -88,6 +79,7 @@ public class InnerClassTest extends TestCase {
     * test that specified constraints for inner classes not marked with @Constrained
     * are ignored
     */
+   @Test
    public void testInnerClassNotGuarded() {
       final Guard guard = new Guard();
       TestGuardAspect.aspectOf().setGuard(guard);

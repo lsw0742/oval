@@ -1,13 +1,10 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.constraints;
+
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,62 +13,66 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Test;
+
 import net.sf.oval.constraint.SizeCheck;
 
 /**
  * @author Sebastian Thomschke
  */
 public class SizeTest extends AbstractContraintsTest {
+
+   @Test
    public void testSize() {
       final SizeCheck check = new SizeCheck();
       super.testCheck(check);
-      assertTrue(check.isSatisfied(null, null, null, null));
+      assertThat(check.isSatisfied(null, null, null)).isTrue();
 
       check.setMin(2);
       check.setMax(3);
-      assertEquals(2, check.getMin());
-      assertEquals(3, check.getMax());
+      assertThat(check.getMin()).isEqualTo(2);
+      assertThat(check.getMax()).isEqualTo(3);
 
-      assertFalse(check.isSatisfied(null, new Object[0], null, null));
-      assertFalse(check.isSatisfied(null, new Object[1], null, null));
-      assertTrue(check.isSatisfied(null, new Object[2], null, null));
-      assertTrue(check.isSatisfied(null, new Object[3], null, null));
-      assertFalse(check.isSatisfied(null, new Object[4], null, null));
+      assertThat(check.isSatisfied(null, new Object[0], null)).isFalse();
+      assertThat(check.isSatisfied(null, new Object[1], null)).isFalse();
+      assertThat(check.isSatisfied(null, new Object[2], null)).isTrue();
+      assertThat(check.isSatisfied(null, new Object[3], null)).isTrue();
+      assertThat(check.isSatisfied(null, new Object[4], null)).isFalse();
 
       final List<Object> list = new ArrayList<>();
-      assertFalse(check.isSatisfied(null, list, null, null));
+      assertThat(check.isSatisfied(null, list, null)).isFalse();
       list.add(1);
-      assertFalse(check.isSatisfied(null, list, null, null));
+      assertThat(check.isSatisfied(null, list, null)).isFalse();
       list.add(2);
-      assertTrue(check.isSatisfied(null, list, null, null));
+      assertThat(check.isSatisfied(null, list, null)).isTrue();
       list.add(3);
-      assertTrue(check.isSatisfied(null, list, null, null));
+      assertThat(check.isSatisfied(null, list, null)).isTrue();
       list.add(4);
-      assertFalse(check.isSatisfied(null, list, null, null));
+      assertThat(check.isSatisfied(null, list, null)).isFalse();
 
       final Set<Object> set = new HashSet<>();
-      assertFalse(check.isSatisfied(null, set, null, null));
+      assertThat(check.isSatisfied(null, set, null)).isFalse();
       set.add(1);
-      assertFalse(check.isSatisfied(null, set, null, null));
+      assertThat(check.isSatisfied(null, set, null)).isFalse();
       set.add(2);
-      assertTrue(check.isSatisfied(null, set, null, null));
+      assertThat(check.isSatisfied(null, set, null)).isTrue();
       set.add(3);
-      assertTrue(check.isSatisfied(null, set, null, null));
+      assertThat(check.isSatisfied(null, set, null)).isTrue();
       set.add(4);
-      assertFalse(check.isSatisfied(null, set, null, null));
+      assertThat(check.isSatisfied(null, set, null)).isFalse();
 
       final Map<Object, Object> map = new HashMap<>();
-      assertFalse(check.isSatisfied(null, map, null, null));
+      assertThat(check.isSatisfied(null, map, null)).isFalse();
       map.put(1, 1);
-      assertFalse(check.isSatisfied(null, map, null, null));
+      assertThat(check.isSatisfied(null, map, null)).isFalse();
       map.put(2, 2);
-      assertTrue(check.isSatisfied(null, map, null, null));
+      assertThat(check.isSatisfied(null, map, null)).isTrue();
       map.put(3, 3);
-      assertTrue(check.isSatisfied(null, map, null, null));
+      assertThat(check.isSatisfied(null, map, null)).isTrue();
       map.put(4, 4);
-      assertFalse(check.isSatisfied(null, map, null, null));
+      assertThat(check.isSatisfied(null, map, null)).isFalse();
 
-      assertTrue(check.isSatisfied(null, "bla", null, null));
-      assertFalse(check.isSatisfied(null, "blabla", null, null));
+      assertThat(check.isSatisfied(null, "bla", null)).isTrue();
+      assertThat(check.isSatisfied(null, "blabla", null)).isFalse();
    }
 }

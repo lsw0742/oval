@@ -1,17 +1,15 @@
-/*********************************************************************
- * Copyright 2005-2020 by Sebastian Thomschke and others.
- *
- * This program and the accompanying materials are made
- * available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+/*
+ * Copyright 2005-2021 by Sebastian Thomschke and contributors.
  * SPDX-License-Identifier: EPL-2.0
- *********************************************************************/
+ */
 package net.sf.oval.test.validator;
+
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import net.sf.oval.ConstraintViolation;
 import net.sf.oval.Validator;
 import net.sf.oval.constraint.Assert;
@@ -19,7 +17,8 @@ import net.sf.oval.constraint.Assert;
 /**
  * @author Sebastian Thomschke
  */
-public class AssertBeanShellTest extends TestCase {
+public class AssertBeanShellTest {
+
    protected static class Person {
       @Assert(expr = "_value!=null", lang = "bsh", errorCode = "C1")
       public String firstName;
@@ -31,31 +30,32 @@ public class AssertBeanShellTest extends TestCase {
       public String zipCode;
    }
 
+   @Test
    public void testBeanShellExpression() {
       final Validator validator = new Validator();
 
       // test not null
       final Person p = new Person();
       List<ConstraintViolation> violations = validator.validate(p);
-      assertTrue(violations.size() == 3);
+      assertThat(violations).hasSize(3);
 
       // test max length
       p.firstName = "Mike";
       p.lastName = "Mahoney";
-      p.zipCode = "1234567";
+      p.zipCode = "1234567"; // too long
       violations = validator.validate(p);
-      assertTrue(violations.size() == 1);
-      assertTrue(violations.get(0).getErrorCode().equals("C3"));
+      assertThat(violations).hasSize(1);
+      assertThat(violations.get(0).getErrorCode()).isEqualTo("C3");
 
       // test not empty
       p.zipCode = "";
       violations = validator.validate(p);
-      assertTrue(violations.size() == 1);
-      assertTrue(violations.get(0).getErrorCode().equals("C3"));
+      assertThat(violations).hasSize(1);
+      assertThat(violations.get(0).getErrorCode()).isEqualTo("C3");
 
       // test ok
       p.zipCode = "wqeew";
       violations = validator.validate(p);
-      assertTrue(violations.size() == 0);
+      assertThat(violations).isEmpty();
    }
 }
